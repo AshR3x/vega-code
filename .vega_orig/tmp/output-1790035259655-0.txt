@@ -1,0 +1,437 @@
+<path>F:\Coding\AI Code\index.html</path>
+<type>file</type>
+<content>
+1: <!DOCTYPE html>
+2: <html lang="en">
+3: <head>
+4:     <meta charset="UTF-8">
+5:     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6:     <title>Unlimited Tube - Free HD Videos</title>
+7:     <link rel="stylesheet" href="css/style.css">
+8:     <link rel="preconnect" href="https://fonts.googleapis.com">
+9:     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+10:     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+11: </head>
+12: <body>
+13:     <!-- Navigation -->
+14:     <nav class="navbar">
+15:         <div class="nav-container">
+16:             <a href="#" class="nav-logo">
+17:                 <span class="logo-text">Unlimited</span>
+18:             </a>
+19:             
+20:             <div class="nav-search">
+21:                 <input type="text" placeholder="Search videos..." id="search-input">
+22:                 <i class="fas fa-search"></i>
+23:             </div>
+24:             
+25:             <div class="nav-actions">
+26:                 <a href="#" class="nav-btn btn-icon">
+27:                     <i class="fas fa-camera"></i>
+28:                 </a>
+29:                 <a href="#" class="nav-btn btn-icon">
+30:                     <i class="fas fa-plus-square"></i>
+31:                 </a>
+32:                 <a href="#" class="nav-btn btn-icon">
+33:                     <i class="fas fa-comment-dots"></i>
+34:                     <span class="notification-badge">3</span>
+35:                 </a>
+36:                 <a href="#" class="nav-btn btn-user"><i class="fas fa-bars"></i><span class="arrow-right">></span></a>
+37:             </div>
+38:             
+39:             <div class="nav-toggle">
+40:                 <i class="fas fa-bars"></i>
+41:             </div>
+42:         </div>
+43:     </nav>
+44: 
+45:     <!-- Header / Category Section -->
+46:     <header class="site-header">
+47:         <div class="container">
+48:             <div class="header-content">
+49:                 <h1 class="logo-text">Unlimited</h1>
+50:                 <p class="header-subtitle">100% free - No limit, no signup, no credits</p>
+51:                 
+52:                 <div class="search-header">
+53:                     <input type="text" placeholder="Search videos, models, categories..." id="search-header-input">
+54:                     <button class="btn btn-red"><i class="fas fa-search"></i> Search</button>
+55:                 </div>
+56:                 
+57:                 <div class="header-filters">
+58:                     <div class="filter-group">
+59:                         <button class="filter-btn active" data-filter="all">All Videos</button>
+60:                         <button class="filter-btn" data-filter="trending">Trending</button>
+61:                         <button class="filter-btn" data-filter="newest">Newest</button>
+62:                         <button class="filter-btn" data-filter="popular">Popular</button>
+63:                     </div>
+64:                 </div>
+65:             </div>
+66:         </div>
+67:     </header>
+68: 
+69:     <!-- Main Content -->
+70:     <main class="main-content">
+71:         <div class="container">
+72:             <div class="content-wrapper">
+73:                 <!-- Left Sidebar - Categories -->
+74:                 <aside class="sidebar-left">
+75:                     <div class="sidebar">
+76:                         <div class="sidebar-section">
+77:                             <h3 class="sidebar-title">Categories</h3>
+78:                             <div class="category-list">
+79:                                 <a href="#" class="category-item active">
+80:                                     <i class="fas fa-film"></i>
+81:                                     <span>All Categories</span>
+82:                                 </a>
+83:                                 <a href="#" class="category-item">
+84:                                     <i class="fas fa-hot-tub-person"></i>
+85:                                     <span>18+ Content</span>
+86:                                 </a>
+87:                                 <a href="#" class="category-item">
+88:                                     <i class="fas fa-water"></i>
+89:                                     <span>Pool & Beach</span>
+90:                                 </a>
+91:                                 <a href="#" class="category-item">
+92:                                     <i class="fas fa-briefs"></i>
+93:                                     <span>Swimsuits</span>
+94:                                 </a>
+95:                                 <a href="#" class="category-item">
+96:                                     <i class="fas fa-running"></i>
+97:                                     <span>Gym & Fitness</span>
+98:                                 </a>
+99:                                 <a href="#" class="category-item">
+100:                                     <i class="fas fa-glasses"></i>
+101:                                     <span>Eye Candy</span>
+102:                                 </a>
+103:                             </div>
+104:                         </div>
+105:                         
+106:                         <div class="sidebar-section">
+107:                             <h3 class="sidebar-title">Trending Models</h3>
+108:                             <div class="model-list">
+109:                                 <div class="model-item">
+110:                                     <div class="model-thumb">
+111:                                         <i class="fas fa-user"></i>
+112:                                     </div>
+113:                                     <div class="model-info">
+114:                                         <h4>Sarah</h4>
+115:                                         <span>984 videos</span>
+116:                                     </div>
+117:                                 </div>
+118:                                 <div class="model-item">
+119:                                     <div class="model-thumb">
+120:                                         <i class="fas fa-user"></i>
+121:                                     </div>
+122:                                     <div class="model-info">
+123:                                         <h4>Jessica</h4>
+124:                                         <span>1243 videos</span>
+125:                                     </div>
+126:                                 </div>
+127:                                 <div class="model-item">
+128:                                     <div class="model-thumb">
+129:                                         <i class="fas fa-user"></i>
+130:                                     </div>
+131:                                     <div class="model-info">
+132:                                         <h4>Amanda</h4>
+133:                                         <span>856 videos</span>
+134:                                     </div>
+135:                                 </div>
+136:                             </div>
+137:                         </div>
+138:                     </div>
+139:                 </aside>
+140: 
+141:                 <!-- Video Grid -->
+142:                 <section class="video-section">
+143:                     <div class="video-grid">
+144:                         <div class="video-card" data-category="trending">
+145:                             <div class="video-thumbnail">
+146:                                 <div class="video-preview-icon">
+147:                                     <i class="fas fa-play"></i>
+148:                                 </div>
+149:                                 <div class="video-duration">12:45</div>
+150:                                 <div class="video-rating">
+151:                                     <i class="fas fa-star"></i>
+152:                                     <span>⭐⭐⭐⭐⭐</span>
+153:                                 </div>
+154:                             </div>
+155:                             <h4 class="video-title">Morning Workout - Full Body HIIT</h4>
+156:                             <div class="video-meta">
+157:                                 <span class="model-name">FitnessGirl</span>
+158:                                 <span class="video-views">2.3M views</span>
+159:                                 <span class="video-date">2 days ago</span>
+160:                             </div>
+161:                         </div>
+162: 
+163:                         <div class="video-card">
+164:                             <div class="video-thumbnail">
+165:                                 <div class="video-preview-icon">
+166:                                     <i class="fas fa-play"></i>
+167:                                 </div>
+168:                                 <div class="video-duration">24:12</div>
+169:                                 <div class="video-rating">
+170:                                     <i class="fas fa-star"></i>
+171:                                     <span>⭐⭐⭐⭐</span>
+172:                                 </div>
+173:                             </div>
+174:                             <h4 class="video-title">Beach Vibes - Summer Fun 2026</h4>
+175:                             <div class="video-meta">
+176:                                 <span class="model-name">BeachQueen</span>
+177:                                 <span class="video-views">5.1M views</span>
+178:                                 <span class="video-date">5 hours ago</span>
+179:                             </div>
+180:                         </div>
+181: 
+182:                         <div class="video-card">
+183:                             <div class="video-thumbnail">
+184:                                 <div class="video-preview-icon">
+185:                                     <i class="fas fa-play"></i>
+186:                                 </div>
+187:                                 <div class="video-duration">18:30</div>
+188:                                 <div class="video-rating">
+189:                                     <i class="fas fa-star"></i>
+190:                                     <span>⭐⭐⭐⭐⭐</span>
+191:                                 </div>
+192:                             </div>
+193:                             <h4 class="video-title">Pool Party Highlights 2026</h4>
+194:                             <div class="video-meta">
+195:                                 <span class="model-name">PoolBabe</span>
+196:                                 <span class="video-views">3.8M views</span>
+197:                                 <span class="video-date">1 day ago</span>
+198:                             </div>
+199:                         </div>
+200: 
+201:                         <div class="video-card">
+202:                             <div class="video-thumbnail">
+203:                                 <div class="video-preview-icon">
+204:                                     <i class="fas fa-play"></i>
+205:                                 </div>
+206:                                 <div class="video-duration">28:55</div>
+207:                                 <div class="video-rating">
+208:                                     <i class="fas fa-star"></i>
+209:                                     <span>⭐⭐⭐⭐⭐</span>
+210:                                 </div>
+211:                             </div>
+212:                             <h4 class="video-title">Gym Motivation - Get Fit Today</h4>
+213:                             <div class="video-meta">
+214:                                 <span class="model-name">GymGirlFit</span>
+215:                                 <span class="video-views">1.2M views</span>
+216:                                 <span class="video-date">3 days ago</span>
+217:                             </div>
+218:                         </div>
+219: 
+220:                         <div class="video-card">
+221:                             <div class="video-thumbnail">
+222:                                 <div class="video-preview-icon">
+223:                                     <i class="fas fa-play"></i>
+224:                                 </div>
+225:                                 <div class="video-duration">15:20</div>
+226:                                 <div class="video-rating">
+227:                                     <i class="fas fa-star"></i>
+228:                                     <span>⭐⭐⭐⭐</span>
+229:                                 </div>
+230:                             </div>
+231:                             <h4 class="video-title">Spa Relaxation & Self Care</h4>
+232:                             <div class="video-meta">
+233:                                 <span class="model-name">SpaLover</span>
+234:                                 <span class="video-views">890K views</span>
+235:                                 <span class="video-date">6 hours ago</span>
+236:                             </div>
+237:                         </div>
+238: 
+239:                         <div class="video-card">
+240:                             <div class="video-thumbnail">
+241:                                 <div class="video-preview-icon">
+242:                                     <i class="fas fa-play"></i>
+243:                                 </div>
+244:                                 <div class="video-duration">32:10</div>
+245:                                 <div class="video-rating">
+246:                                     <i class="fas fa-star"></i>
+247:                                     <span>⭐⭐⭐⭐⭐</span>
+248:                                 </div>
+249:                             </div>
+250:                             <h4 class="video-title">Casual Day Out - Street Fashion</h4>
+251:                             <div class="video-meta">
+252:                                 <span class="model-name">FashionMaven</span>
+253:                                 <span class="video-views">2.9M views</span>
+254:                                 <span class="video-date">1 week ago</span>
+255:                             </div>
+256:                         </div>
+257: 
+258:                         <div class="video-card">
+259:                             <div class="video-thumbnail">
+260:                                 <div class="video-preview-icon">
+261:                                     <i class="fas fa-play"></i>
+262:                                 </div>
+263:                                 <div class="video-duration">21:45</div>
+264:                                 <div class="video-rating">
+265:                                     <i class="fas fa-star"></i>
+266:                                     <span>⭐⭐⭐⭐</span>
+267:                                 </div>
+268:                             </div>
+269:                             <h4 class="video-title">Office Life - Day in the Life</h4>
+270:                             <div class="video-meta">
+271:                                 <span class="model-name">OfficeGirl</span>
+272:                                 <span class="video-views">1.5M views</span>
+273:                                 <span class="video-date">4 days ago</span>
+274:                             </div>
+275:                         </div>
+276: 
+277:                         <div class="video-card">
+278:                             <div class="video-thumbnail">
+279:                                 <div class="video-preview-icon">
+280:                                     <i class="fas fa-play"></i>
+281:                                 </div>
+282:                                 <div class="video-duration">19:50</div>
+283:                                 <div class="video-rating">
+284:                                     <i class="fas fa-star"></i>
+285:                                     <span>⭐⭐⭐⭐⭐</span>
+286:                                 </div>
+287:                             </div>
+288:                             <h4 class="video-title">Travel Vlog - Paris 2026</h4>
+289:                             <div class="video-meta">
+290:                                 <span class="model-name">TravelBabe</span>
+291:                                 <span class="video-views">4.2M views</span>
+292:                                 <span class="video-date">2 weeks ago</span>
+293:                             </div>
+294:                         </div>
+295: 
+296:                         <div class="video-card">
+297:                             <div class="video-thumbnail">
+298:                                 <div class="video-preview-icon">
+299:                                     <i class="fas fa-play"></i>
+300:                                 </div>
+301:                                 <div class="video-duration">26:30</div>
+302:                                 <div class="video-rating">
+303:                                     <i class="fas fa-star"></i>
+304:                                     <span>⭐⭐⭐⭐</span>
+305:                                 </div>
+306:                             </div>
+307:                             <h4 class="video-title">Yoga & Meditation - Peaceful Morning</h4>
+308:                             <div class="video-meta">
+309:                                 <span class="model-name">ZenGoddess</span>
+310:                                 <span class="video-views">750K views</span>
+311:                                 <span class="video-date">1 day ago</span>
+312:                             </div>
+313:                         </div>
+314: 
+315:                         <div class="video-card">
+316:                             <div class="video-thumbnail">
+317:                                 <div class="video-preview-icon">
+318:                                     <i class="fas fa-play"></i>
+319:                                 </div>
+320:                                 <div class="video-duration">35:00</div>
+321:                                 <div class="video-rating">
+322:                                     <i class="fas fa-star"></i>
+323:                                     <span>⭐⭐⭐⭐⭐</span>
+324:                                 </div>
+325:                             </div>
+326:                             <h4 class="video-title">Cocktail Mixology - Making Waves</h4>
+327:                             <div class="video-meta">
+328:                                 <span class="model-name">MixologyPro</span>
+329:                                 <span class="video-views">1.8M views</span>
+330:                                 <span class="video-date">3 days ago</span>
+331:                             </div>
+332:                         </div>
+333:                     </div>
+334: 
+335:                     <!-- Load More -->
+336:                     <div class="load-more-section">
+337:                         <button class="btn btn-red btn-large">Load More Videos</button>
+338:                     </div>
+339:                 </section>
+340:             </div>
+341:         </div>
+342:     </main>
+343: 
+344:     <!-- Footer -->
+345:     <footer class="site-footer">
+346:         <div class="container">
+347:             <div class="footer-content">
+348:                 <a href="#" class="footer-logo">
+349:                     <span class="footer-logo-text">Unlimited</span>
+350:                 </a>
+351:                 <p class="footer-tagline">100% free - No limit, no signup, no credits required!</p>
+352:                 
+353:                 <div class="footer-social">
+354:                     <a href="#" class="social-btn"><i class="fab fa-facebook"></i></a>
+355:                     <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+356:                     <a href="#" class="social-btn"><i class="fab fa-tiktok"></i></a>
+357:                     <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+358:                 </div>
+359:                 
+360:                 <p class="footer-copy">&copy; 2026 Unlimited Tube. All rights reserved.</p>
+361:             </div>
+362:             
+363:             <div class="footer-links">
+364:                 <a href="#" class="footer-link">About</a>
+365:                 <a href="#" class="footer-link">FAQs</a>
+366:                 <a href="#" class="footer-link">Premium</a>
+367:                 <a href="#" class="footer-link">Contact Us</a>
+368:             </div>
+369:         </div>
+370:     </footer>
+371: 
+372:     <!-- Video Modal -->
+373:     <div class="video-modal" id="videoModal">
+374:         <div class="modal-content">
+375:             <button class="modal-close"><i class="fas fa-times"></i></button>
+376:             <div class="modal-body">
+377:                 <div class="modal-video-wrapper">
+378:                     <div class="video-placeholder">
+379:                         <i class="fas fa-play-circle"></i>
+380:                         <span class="video-title-placeholder">Video Playing Here</span>
+381:                     </div>
+382:                 </div>
+383:                 <div class="modal-info">
+384:                     <h3 id="modal-video-title">Video Title</h3>
+385:                     <p id="modal-video-desc">Video description goes here...</p>
+386:                     <div class="modal-actions">
+387:                         <button class="btn btn-red modal-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</button>
+388:                     </div>
+389:                 </div>
+390:             </div>
+391:         </div>
+392:     </div>
+393: 
+394:     <!-- Share/Info Modal -->
+395:     <div class="info-modal" id="infoModal">
+396:         <div class="modal-content">
+397:             <button class="modal-close"><i class="fas fa-times"></i></button>
+398:             <div class="modal-body">
+399:                 <div class="info-header">
+400:                     <h3>Video Information</h3>
+401:                 </div>
+402:                 <div class="info-body">
+403:                     <div class="info-row">
+404:                         <span class="info-label">Model:</span>
+405:                         <span class="info-value" id="info-model">Model Name</span>
+406:                     </div>
+407:                     <div class="info-row">
+408:                         <span class="info-label">Views:</span>
+409:                         <span class="info-value" id="info-views">1M views</span>
+410:                     </div>
+411:                     <div class="info-row">
+412:                         <span class="info-label">Date:</span>
+413:                         <span class="info-value" id="info-date">2 days ago</span>
+414:                     </div>
+415:                     <div class="info-row">
+416:                         <span class="info-label">Duration:</span>
+417:                         <span class="info-value" id="info-duration">12:45</span>
+418:                     </div>
+419:                 </div>
+420:                 <div class="info-actions">
+421:                     <button class="btn btn-red"><i class="fas fa-share-alt"></i> Share</button>
+422:                     <button class="btn btn-transparent"><i class="fas fa-eye"></i> Preview</button>
+423:                 </div>
+424:             </div>
+425:         </div>
+426:     </div>
+427: 
+428:     <script src="js/script.js"></script>
+429: </body>
+430: </html>
+431: 
+
+(End of file - total 431 lines)
+</content>

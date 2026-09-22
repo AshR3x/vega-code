@@ -1,0 +1,23 @@
+{
+  "id": "ses_mubzp8xa_gcdddt",
+  "createdAt": 1790040172654,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hey buddy"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user is greeting me casually. I should respond in a friendly manner and offer to help them with their project.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hey there! How can I help you with the vega-code project?"
+        }
+      ]
+    }
+  ]
+}

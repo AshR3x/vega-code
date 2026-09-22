@@ -1,0 +1,79 @@
+{
+  "id": "ses_mubylsi6_o2lb6z",
+  "createdAt": 1790038331790,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user says \"hi\" which is a simple greeting. I should acknowledge them and offer help with their software engineering task in the vega-code project.\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "9zBCaIuY2q7lte5dIe01GUg36BsHnKX9",
+          "toolName": "read",
+          "input": {
+            "filePath": "F:\\Coding\\vega-code\\package.json",
+            "limit": 50
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "9zBCaIuY2q7lte5dIe01GUg36BsHnKX9",
+          "toolName": "read",
+          "output": {
+            "type": "text",
+            "value": "<path>F:\\Coding\\vega-code\\package.json</path>\n<type>file</type>\n<content>\n1: {\n2:   \"name\": \"vega-code\",\n3:   \"version\": \"0.1.0\",\n4:   \"private\": true,\n5:   \"type\": \"module\",\n6:   \"bin\": {\n7:     \"vega\": \"./src/index.ts\"\n8:   },\n9:   \"scripts\": {\n10:     \"dev\": \"bun run ./src/index.ts\",\n11:     \"typecheck\": \"tsc --noEmit\"\n12:   },\n13:   \"dependencies\": {\n14:     \"@ai-sdk/anthropic\": \"^2.0.0\",\n15:     \"@ai-sdk/groq\": \"2.0.53\",\n16:     \"@ai-sdk/openai\": \"^2.0.0\",\n17:     \"@ai-sdk/openai-compatible\": \"1.0.54\",\n18:     \"@opentui/core\": \"0.5.11\",\n19:     \"@opentui/solid\": \"0.5.11\",\n20:     \"ai\": \"^5.0.0\",\n21:     \"glob\": \"^11.0.0\",\n22:     \"picocolors\": \"^1.1.1\",\n23:     \"solid-js\": \"1.9.10\",\n24:     \"zod\": \"^3.24.0\"\n25:   },\n26:   \"devDependencies\": {\n27:     \"@types/bun\": \"latest\",\n28:     \"@types/node\": \"^22.0.0\",\n29:     \"typescript\": \"^5.7.0\"\n30:   }\n31: }\n32: \n\n(End of file - total 32 lines)\n</content>"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool-call",
+          "toolCallId": "qE4uGPCzXGzjvei1kLCx1eKZjuyZzxoV",
+          "toolName": "read",
+          "input": {
+            "filePath": "F:\\Coding\\vega-code\\src\\index.ts",
+            "limit": 50
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "qE4uGPCzXGzjvei1kLCx1eKZjuyZzxoV",
+          "toolName": "read",
+          "output": {
+            "type": "text",
+            "value": "<path>F:\\Coding\\vega-code\\src\\index.ts</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env bun\n2: import readline from \"node:readline\"\n3: import type { ModelMessage } from \"ai\"\n4: import { loadConfig, saveModelPreference, PROVIDERS, type ProviderID, type VegaConfig } from \"@/config\"\n5: import { PermissionService, DEFAULT_RULESET, type PromptFn } from \"@/permission\"\n6: import { AGENTS, defaultAgent, type AgentDef } from \"@/agent\"\n7: import { runAgentLoop } from \"@/loop\"\n8: import { compact as compactMessages } from \"@/context\"\n9: import { resolveModel, MissingApiKeyError } from \"@/provider\"\n10: import { Session, newSessionID } from \"@/session\"\n11: import { listOllamaModels } from \"@/ollama\"\n12: import { runCommand, type CommandCtx } from \"@/command\"\n13: import { theme, fromRgb } from \"@/tui/theme\"\n14: import { renderLogo, renderPromptFrame, promptBoxWidth, promptBoxTextWidth, PROMPT_FRAME_HEIGHT } from \"@/tui/logo\"\n15: import { centerBlock, terminalSize, truncateWithEllipsis, truncateForDisplay } from \"@/tui/layout\"\n16: import { runLayoutDebug } from \"@/tui/debug\"\n17: import type { TuiHooks } from \"@/tui/app\"\n18: \n19: const GAP_BEFORE_LOGO = 4\n20: const GAP_AFTER_LOGO = 1\n21: const PROMPT_WRAPPER_PADDING_TOP = 1\n22: const FOOTER_PADDING = 1 // top and bottom, matching footer.tsx's paddingTop=1/paddingBottom=1\n23: \n24: // A real TTY echoes typed characters itself, and Enter supplies the newline\n25: // that separates our prompt text from whatever we print next. Piped/\n26: // non-interactive stdin echoes nothing, so without this, our prompt text\n27: // and the box's closing lines printed right after `ask()` resolves end up\n28: // concatenated onto one line instead of stacked.\n29: function finishLine() {\n30:   if (!process.stdout.isTTY) process.stdout.write(\"\\n\")\n31: }\n32: \n33: // The OpenTUI renderer needs exclusive stdin ownership in interactive mode,\n34: // so readline is set up lazily here — only on the non-interactive (one-shot\n35: // or piped-stdin) console path — never at module load.\n36: interface ConsoleAsk {\n37:   ask(prompt: string): Promise<string>\n38:   close(): void\n39:   isThinkingExpanded(): boolean\n40: }\n41: \n42: function createConsoleAsk(): ConsoleAsk {\n43:   const rl = readline.createInterface({ input: process.stdin, output: process.stdout })\n44: \n45:   // `rl.question()` only captures the *next* 'line' event at the moment it's\n46:   // called — if input arrives faster than we re-call it (pasted multi-line\n47:   // input, piped/scripted stdin), extra lines fire into the void and are lost,\n48:   // and once stdin hits EOF a pending question() never resolves, silently\n49:   // killing the process. Queue lines ourselves instead so nothing is dropped\n50:   // and EOF resolves cleanly to an exit sentinel.\n\n(Showing lines 1-50 of 586. Use offset=51 to continue.)\n</content>"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "<status>completed</status>"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "ses_mubyn5xz_088iid",
+  "createdAt": 1790038395863,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user just said \"hi\" as a greeting. I should respond with a friendly greeting and offer my assistance. Since I'm vega-code, an autonomous CLI coding agent, I should let them know how I can help with their project.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hello! I'm your autonomous CLI coding agent. How can I help you with your project in F:\\Coding\\vega-code?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "hii"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user is just saying hi/hello again. I should greet them and offer help with what they might need to accomplish in their project.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hi! What would you like to work on?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "asssssssssssssss"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user typed \"asssssssssssssss\" which looks like a test message, possibly a keyboard mumble or accidental typing. It doesn't form a clear command or question. I should ask them to clarify what they'd like to do with the project.\n"
+        },
+        {
+          "type": "text",
+          "text": "What would you like to do?"
+        }
+      ]
+    }
+  ]
+}

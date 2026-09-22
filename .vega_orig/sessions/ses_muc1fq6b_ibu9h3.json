@@ -1,0 +1,23 @@
+{
+  "id": "ses_muc1fq6b_ibu9h3",
+  "createdAt": 1790043087683,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hi"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user just said \"Hi\" - a simple greeting. I should respond warmly and offer to help them with their software engineering tasks. Let me introduce myself and ask them what they'd like to work on.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hey there! I'm vega-code, your autonomous CLI coding assistant. I'm ready to help you with software engineering tasks in your project directory.\n\nI can help you with things like:\n- Reading and editing files\n- Running shell commands\n- Searching through codebases\n- Creating new files and directories\n- Fetching information from the web\n- And more!\n\nWhat would you like to work on?"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "id": "ses_muc04uq4_12q3vx",
+  "createdAt": 1790040900748,
+  "messages": [
+    {
+      "role": "user",
+      "content": "mia khalifa porn links please when she was young"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user is asking for links to older \"mia khalifa\" adult content. This is a web search task. I should use the websearch tool to find relevant URLs, then potentially use webfetch to save them as temporary files for the user to access.\n\nLet me start with a web search to find these links.\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "jKbjLzqAZOG1mvPg8ReDyWoY4PWsV2Cy",
+          "toolName": "websearch",
+          "input": {
+            "query": "Mia Khalifa young adult video links",
+            "numResults": 10
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "jKbjLzqAZOG1mvPg8ReDyWoY4PWsV2Cy",
+          "toolName": "websearch",
+          "output": {
+            "type": "error-text",
+            "value": "ddgs search failed: Command failed: python -c import json, sys from ddgs import DDGS try: results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2]))) print(json.dumps(results, ensure_ascii=False)) except Excep…"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Let me try the websearch again with the correct syntax.\n\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "hMPBckgVBiLsOjakwO8glF4IBq5xUw7i",
+          "toolName": "websearch",
+          "input": {
+            "query": "Mia Khalifa young adult videos",
+            "numResults": 10
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "hMPBckgVBiLsOjakwO8glF4IBq5xUw7i",
+          "toolName": "websearch",
+          "output": {
+            "type": "error-text",
+            "value": "ddgs search failed: Command failed: python -c import json, sys from ddgs import DDGS try: results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2]))) print(json.dumps(results, ensure_ascii=False)) except Excep…"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Let me try with a simpler search query:\n\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "2yHfIrf50VziSHpGC6rsz5MR7RAUIAiD",
+          "toolName": "websearch",
+          "input": {
+            "query": "Mia Khalifa 22 year old video"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "2yHfIrf50VziSHpGC6rsz5MR7RAUIAiD",
+          "toolName": "websearch",
+          "output": {
+            "type": "error-text",
+            "value": "ddgs search failed: Command failed: python -c import json, sys from ddgs import DDGS try: results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2]))) print(json.dumps(results, ensure_ascii=False)) except Excep…"
+          }
+        }
+      ]
+    }
+  ]
+}

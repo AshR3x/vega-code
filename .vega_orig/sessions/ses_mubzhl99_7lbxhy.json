@@ -1,0 +1,23 @@
+{
+  "id": "ses_mubzhl99_7lbxhy",
+  "createdAt": 1790039815389,
+  "messages": [
+    {
+      "role": "user",
+      "content": "say hello in one short sentence"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants me to say hello in one short sentence. This is a simple task that doesn't require any tools - I just need to respond with a greeting.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hello!"
+        }
+      ]
+    }
+  ]
+}

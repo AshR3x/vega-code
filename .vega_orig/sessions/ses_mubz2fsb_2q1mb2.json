@@ -1,0 +1,23 @@
+{
+  "id": "ses_mubz2fsb_2q1mb2",
+  "createdAt": 1790039108459,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user just said \"hi\" which is a simple greeting. I should respond and let them know I'm ready to help with their software engineering tasks in the vega-code project.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hello! I'm vega-code, your autonomous CLI coding agent. I'm ready to help you with software engineering tasks in your project at `F:\\Coding\\vega-code`.\n\nWhat would you like to work on?"
+        }
+      ]
+    }
+  ]
+}

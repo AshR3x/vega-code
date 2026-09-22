@@ -1,0 +1,529 @@
+<path>F:\Coding\vega-code\src\index.ts</path>
+<type>file</type>
+<content>
+1: #!/usr/bin/env bun
+2: import readline from "node:readline"
+3: import type { ModelMessage } from "ai"
+4: import { loadConfig, saveModelPreference, PROVIDERS, type ProviderID, type VegaConfig } from "@/config"
+5: import { PermissionService, DEFAULT_RULESET, type PromptFn } from "@/permission"
+6: import { AGENTS, defaultAgent, type AgentDef } from "@/agent"
+7: import { runAgentLoop } from "@/loop"
+8: import { compact as compactMessages } from "@/context"
+9: import { resolveModel, MissingApiKeyError } from "@/provider"
+10: import { Session, newSessionID } from "@/session"
+11: import { listOllamaModels } from "@/ollama"
+12: import { runCommand, type CommandCtx } from "@/command"
+13: import { theme, fromRgb } from "@/tui/theme"
+14: import { renderLogo, renderPromptFrame, promptBoxWidth, promptBoxTextWidth, PROMPT_FRAME_HEIGHT } from "@/tui/logo"
+15: import { centerBlock, terminalSize, truncateWithEllipsis } from "@/tui/layout"
+16: import { runLayoutDebug } from "@/tui/debug"
+17: 
+18: const GAP_BEFORE_LOGO = 4
+19: const GAP_AFTER_LOGO = 1
+20: const PROMPT_WRAPPER_PADDING_TOP = 1
+21: const FOOTER_PADDING = 1 // top and bottom, matching footer.tsx's paddingTop=1/paddingBottom=1
+22: 
+23: const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+24: 
+25: // `rl.question()` only captures the *next* 'line' event at the moment it's
+26: // called — if input arrives faster than we re-call it (pasted multi-line
+27: // input, piped/scripted stdin), extra lines fire into the void and are lost,
+28: // and once stdin hits EOF a pending question() never resolves, silently
+29: // killing the process. Queue lines ourselves instead so nothing is dropped
+30: // and EOF resolves cleanly to an exit sentinel.
+31: const lineQueue: string[] = []
+32: let waitingResolve: ((line: string) => void) | undefined
+33: let closed = false
+34: 
+35: rl.on("line", (line) => {
+36:   if (waitingResolve) {
+37:     const resolve = waitingResolve
+38:     waitingResolve = undefined
+39:     resolve(line)
+40:   } else {
+41:     lineQueue.push(line)
+42:   }
+43: })
+44: 
+45: rl.on("close", () => {
+46:   closed = true
+47:   if (waitingResolve) {
+48:     const resolve = waitingResolve
+49:     waitingResolve = undefined
+50:     resolve("/exit")
+51:   }
+52: })
+53: 
+54: // Double-tap Tab toggles between a collapsed "(thinking...)" indicator and
+55: // showing the model's full reasoning/thinking text live as it streams.
+56: // Real opencode has the same concept (context/thinking.ts's "show"/"hide"
+57: // mode) but binds no default key for it — config/keybind.ts:151 is
+58: // literally `display_thinking: keybind("none", "Toggle thinking blocks
+59: // visibility")` — so there's no existing gesture to match; this picks a
+60: // concrete one since the feature needs one. Only wired up on a real TTY —
+61: // piped/non-interactive stdin never emits keypress events, which is fine,
+62: // there's no live toggling to do there anyway.
+63: let thinkingExpanded = false
+64: let lastTabAt = 0
+65: const DOUBLE_TAP_WINDOW_MS = 400
+66: 
+67: if (process.stdin.isTTY) {
+68:   process.stdin.on("keypress", (_str, key: { name?: string } | undefined) => {
+69:     if (!key || key.name !== "tab") return
+70:     const now = Date.now()
+71:     if (now - lastTabAt < DOUBLE_TAP_WINDOW_MS) {
+72:       thinkingExpanded = !thinkingExpanded
+73:       lastTabAt = 0
+74:       console.log()
+75:       console.log(
+76:         thinkingExpanded
+77:           ? theme.accent("Thinking display: expanded (shows reasoning live from here on)")
+78:           : theme.gray("Thinking display: collapsed"),
+79:       )
+80:     } else {
+81:       lastTabAt = now
+82:     }
+83:   })
+84: }
+85: 
+86: // A real TTY echoes typed characters itself, and Enter supplies the newline
+87: // that separates our prompt text from whatever we print next. Piped/
+88: // non-interactive stdin echoes nothing, so without this, our prompt text
+89: // and the box's closing lines printed right after `ask()` resolves end up
+90: // concatenated onto one line instead of stacked.
+91: function finishLine() {
+92:   if (!process.stdout.isTTY) process.stdout.write("\n")
+93: }
+94: 
+95: // Must go through rl.setPrompt()/rl.prompt() rather than a raw
+96: // process.stdout.write(prompt) — readline's own line-editing (backspace,
+97: // left/right, history, redraw on terminal resize) recalculates cursor
+98: // position from *its own* internal notion of the prompt (rl._prompt),
+99: // which stays at its default ('> ') if we never tell it what the real
+100: // prompt text is. A manually-written prompt readline doesn't know about
+101: // means every subsequent redraw (e.g. on backspace) is computed against
+102: // the wrong prompt width and visibly garbles the line.
+103: function ask(prompt: string): Promise<string> {
+104:   // Queued lines and the closed-EOF case must be checked, and returned,
+105:   // BEFORE touching `rl` at all: piped stdin can hit EOF (closing `rl`)
+106:   // well before we get back around to the next ask() call — e.g. while a
+107:   // real multi-second LLM turn is still streaming — and rl.prompt() throws
+108:   // ERR_USE_AFTER_CLOSE if the interface is already closed. Only call it
+109:   // once we know we're actually about to wait live, which is the one case
+110:   // where rl is guaranteed still open (closed can't flip mid-synchronous-check
+111:   // in a single-threaded event loop).
+112:   if (lineQueue.length > 0) {
+113:     const line = lineQueue.shift()!
+114:     finishLine()
+115:     return Promise.resolve(line)
+116:   }
+117:   if (closed) {
+118:     finishLine()
+119:     return Promise.resolve("/exit")
+120:   }
+121:   rl.setPrompt(prompt)
+122:   rl.prompt()
+123:   return new Promise((resolve) => {
+124:     waitingResolve = (line) => {
+125:       finishLine()
+126:       resolve(line)
+127:     }
+128:   })
+129: }
+130: 
+131: function truncateForDisplay(text: string, max = 400): string {
+132:   const oneLine = text.replace(/\s+/g, " ").trim()
+133:   return oneLine.length > max ? oneLine.slice(0, max) + "..." : oneLine
+134: }
+135: 
+136: const promptFn: PromptFn = async (input) => {
+137:   console.log()
+138:   console.log(theme.accent(`Permission requested: ${input.permission}`))
+139:   for (const pattern of input.patterns) console.log(theme.gray(`  ${pattern}`))
+140:   if (input.metadata?.["command"]) console.log(theme.gray(`  command: ${input.metadata["command"]}`))
+141:   const reply = await ask(theme.accent("Allow? [y]es once / [a]lways / [n]o: "))
+142:   const normalized = reply.trim().toLowerCase()
+143:   if (normalized === "a" || normalized === "always") return "always"
+144:   if (normalized === "y" || normalized === "yes" || normalized === "") return "once"
+145:   return "reject"
+146: }
+147: 
+148: interface ParsedArgs {
+149:   provider?: string
+150:   model?: string
+151:   shouldContinue: boolean
+152:   oneShot: string
+153:   testMode: boolean
+154:   testWidth?: number
+155: }
+156: 
+157: function parseArgs(argv: string[]): ParsedArgs {
+158:   const rest: string[] = []
+159:   let provider: string | undefined
+160:   let model: string | undefined
+161:   let shouldContinue = false
+162:   let testMode = false
+163:   let testWidth: number | undefined
+164: 
+165:   for (let i = 0; i < argv.length; i++) {
+166:     const arg = argv[i]!
+167:     if (arg === "--continue" || arg === "-c") {
+168:       shouldContinue = true
+169:     } else if (arg === "--test") {
+170:       testMode = true
+171:     } else if (arg === "--test-width") {
+172:       testWidth = Number(argv[++i])
+173:     } else if (arg.startsWith("--test-width=")) {
+174:       testWidth = Number(arg.slice("--test-width=".length))
+175:     } else if (arg === "--provider") {
+176:       provider = argv[++i]
+177:     } else if (arg.startsWith("--provider=")) {
+178:       provider = arg.slice("--provider=".length)
+179:     } else if (arg === "--model") {
+180:       model = argv[++i]
+181:     } else if (arg.startsWith("--model=")) {
+182:       model = arg.slice("--model=".length)
+183:     } else {
+184:       rest.push(arg)
+185:     }
+186:   }
+187: 
+188:   return { provider, model, shouldContinue, oneShot: rest.join(" "), testMode, testWidth }
+189: }
+190: 
+191: async function selectOllamaModel(): Promise<string> {
+192:   console.log(theme.dim("Checking local Ollama models (`ollama list`)..."))
+193:   let models: string[]
+194:   try {
+195:     models = await listOllamaModels()
+196:   } catch (err) {
+197:     console.error(theme.error(err instanceof Error ? err.message : String(err)))
+198:     process.exit(1)
+199:   }
+200: 
+201:   if (models.length === 1) {
+202:     console.log(theme.dim(`Using ${models[0]} (only local model available)`))
+203:     await saveModelPreference("ollama", models[0]!)
+204:     return models[0]!
+205:   }
+206: 
+207:   console.log(theme.accent("Select an Ollama model:"))
+208:   models.forEach((name, i) => console.log(`  ${theme.purple(String(i + 1))}) ${name}`))
+209:   while (true) {
+210:     const reply = (await ask(theme.accent(`Model [1-${models.length}]: `))).trim()
+211:     const idx = Number(reply)
+212:     if (Number.isInteger(idx) && idx >= 1 && idx <= models.length) {
+213:       await saveModelPreference("ollama", models[idx - 1]!)
+214:       return models[idx - 1]!
+215:     }
+216:     console.log(theme.error("Invalid selection."))
+217:   }
+218: }
+219: 
+220: function statusLine(cfg: VegaConfig, agent: AgentDef, autoMode: boolean, sessionActive: boolean, terminalWidth: number): string {
+221:   const autoText = autoMode ? " [auto]" : ""
+222:   const prefixLength = agent.name.length + 2 // "  " between name and model
+223:   const budget = Math.max(10, promptBoxTextWidth(sessionActive, terminalWidth) - prefixLength - autoText.length)
+224:   const modelText = truncateWithEllipsis(`${cfg.provider}/${cfg.model}`, budget)
+225: 
+226:   const agentLabel = fromRgb(...agent.color)(agent.name)
+227:   const modelLabel = theme.gray(modelText)
+228:   const autoLabel = theme.accent(autoText)
+229:   return `${agentLabel}  ${modelLabel}${autoLabel}`
+230: }
+231: 
+232: // Real opencode renders this as a live keybinding hint
+233: // (`{agentShortcut()} agents`, `{paletteShortcut()} commands` —
+234: // prompt/index.tsx:1673-1680); we don't have a keybinding-config system, so
+235: // this is our slash-command equivalent of the same row. Confirmed from
+236: // source: it sits directly adjacent to the box's closing cap row, no gap
+237: // (prompt/index.tsx:1512-1513), and shares the box's left edge, not
+238: // independently centered (prompt/index.tsx:1513 has no border/left-bar).
+239: function hintBar(sessionActive: boolean, terminalWidth: number): string {
+240:   // Kept terse on purpose (mirrors real opencode's equally terse row) — the
+241:   // full command list is one `/help` away, and this needs to fit within
+242:   // promptBoxWidth() or it overflows the box's right edge same as the
+243:   // status line does with a long model id.
+244:   const text = "/help commands   /models models   /agent agents"
+245:   return theme.gray(truncateWithEllipsis(text, promptBoxWidth(sessionActive, terminalWidth)))
+246: }
+247: 
+248: async function main() {
+249:   const { provider, model, shouldContinue, oneShot, testMode, testWidth } = parseArgs(process.argv.slice(2))
+250: 
+251:   // Pure offline layout diagnostics — no config, no API key, no session, no
+252:   // network. Exists because verifying the TUI layout by eye against a real
+253:   // terminal isn't always available; this prints rulers, exact computed
+254:   // widths/indents, and raw escaped strings for every layout primitive
+255:   // instead. `bun run src/index.ts --test` (add `--test-width=<n>` to check
+256:   // a specific terminal width, e.g. to see the session-box expansion beyond
+257:   // whatever your actual terminal happens to be).
+258:   if (testMode) {
+259:     runLayoutDebug(testWidth)
+260:     return
+261:   }
+262: 
+263:   if (provider) {
+264:     if (!PROVIDERS.includes(provider as ProviderID)) {
+265:       console.error(theme.error(`Unknown provider: ${provider}. Options: ${PROVIDERS.join(", ")}`))
+266:       process.exit(1)
+267:     }
+268:     process.env["VEGA_PROVIDER"] = provider
+269:   }
+270:   if (model) process.env["VEGA_MODEL"] = model
+271: 
+272:   let cfg = await loadConfig()
+273: 
+274:   if (cfg.provider === "ollama" && !model) {
+275:     process.env["VEGA_MODEL"] = await selectOllamaModel()
+276:     cfg = await loadConfig()
+277:   }
+278: 
+279:   const cwd = process.cwd()
+280:   let agent: AgentDef = defaultAgent()
+281:   const permission = new PermissionService(DEFAULT_RULESET, promptFn)
+282: 
+283:   const session = shouldContinue ? (await Session.mostRecent()) ?? (await Session.create(newSessionID())) : await Session.create(newSessionID())
+284: 
+285:   // Printed once at startup, then the box is what's actually interactive —
+286:   // it must NOT be a separate decorative copy of the box (that was the bug:
+287:   // splash prints its own static box, then the real one prints again below
+288:   // the footer, stranding the live input bar far below the logo). Only the
+289:   // logo + the gap leading into where the box goes are printed here; the
+290:   // very first loop iteration's `ask()` call draws the real box immediately
+291:   // after, so there's nothing in between them.
+292:   if (!oneShot) {
+293:     const { columns, rows } = terminalSize()
+294: 
+295:     // Exact row budget, verified against packages/tui/src/routes/home.tsx
+296:     // and component/prompt/index.tsx (see comments in tui/logo.ts):
+297:     //   gap4 (height=4) -> logo -> gap1 (height=1) -> promptWrapper's own
+298:     //   paddingTop=1 -> the prompt box itself.
+299:     // This whole block sits between two equal flexGrow=1 spacers
+300:     // (home.tsx:73,87); the footer (home.tsx:90-92) is a separate
+301:     // width=100% box OUTSIDE that centered container, so it is NOT part of
+302:     // the centered pool — it's fixed at the very bottom (approximated here
+303:     // as printing once, right after the first exchange, since we don't have
+304:     // a real bottom-pinned region in a scrolling terminal).
+305:     const logoLines = renderLogo()
+306: 
+307:     const centeredBlockHeight = GAP_BEFORE_LOGO + logoLines.length + GAP_AFTER_LOGO + PROMPT_WRAPPER_PADDING_TOP + PROMPT_FRAME_HEIGHT
+308:     const footerHeight = FOOTER_PADDING + 1 + FOOTER_PADDING
+309: 
+310:     const remaining = Math.max(0, rows - centeredBlockHeight - footerHeight)
+311:     const spacer = Math.floor(remaining / 2)
+312: 
+313:     const lines: string[] = []
+314:     lines.push(...Array(spacer).fill(""))
+315:     lines.push(...Array(GAP_BEFORE_LOGO).fill(""))
+316:     lines.push(...centerBlock(logoLines, columns))
+317:     lines.push(...Array(GAP_AFTER_LOGO).fill(""))
+318:     lines.push(...Array(PROMPT_WRAPPER_PADDING_TOP).fill(""))
+319: 
+320:     console.clear()
+321:     console.log(lines.join("\n"))
+322:   }
+323: 
+324:   async function turn(userText: string) {
+325:     const controller = new AbortController()
+326:     const sigint = () => controller.abort()
+327:     process.once("SIGINT", sigint)
+328: 
+329:     session.data.messages.push({ role: "user", content: userText })
+330: 
+331:     let assistantLine = false
+332:     let reasoningLineOpen = false
+333:     try {
+334:       const result = await runAgentLoop({
+335:         agent,
+336:         cwd,
+337:         permission,
+338:         abort: controller.signal,
+339:         sessionID: session.data.id,
+340:         messages: session.data.messages,
+341:         onChunk(event) {
+342:           if (event.type === "reasoning-start") {
+343:             if (assistantLine) {
+344:               process.stdout.write("\n")
+345:               assistantLine = false
+346:             }
+347:             // Collapsed mode: one static marker, no per-delta spam (this is
+348:             // a scrolling terminal, not a repaintable TUI — we can't animate
+349:             // a spinner in place across many deltas the way opencode does).
+350:             // Expanded mode: the actual text streams in on reasoning-delta
+351:             // below instead, so nothing to print yet.
+352:             if (!thinkingExpanded) console.log(theme.gray("(thinking...)"))
+353:           } else if (event.type === "reasoning-delta") {
+354:             if (thinkingExpanded) {
+355:               process.stdout.write(theme.gray(event.text))
+356:               reasoningLineOpen = true
+357:             }
+358:           } else if (event.type === "reasoning-end") {
+359:             if (reasoningLineOpen) {
+360:               process.stdout.write("\n")
+361:               reasoningLineOpen = false
+362:             }
+363:           } else if (event.type === "text") {
+364:             process.stdout.write(event.text)
+365:             assistantLine = true
+366:           } else if (event.type === "tool-call") {
+367:             if (assistantLine) {
+368:               process.stdout.write("\n")
+369:               assistantLine = false
+370:             }
+371:             const input = truncateForDisplay(JSON.stringify(event.input))
+372:             console.log(theme.purple(`→ ${event.name}`) + theme.gray(`(${input})`))
+373:           } else if (event.type === "tool-result") {
+374:             console.log(theme.gray(`  ${truncateForDisplay(event.output)}`))
+375:           } else if (event.type === "tool-error") {
+376:             console.log(theme.error(`  error: ${truncateForDisplay(event.error)}`))
+377:           }
+378:         },
+379:       })
+380:       if (assistantLine) process.stdout.write("\n")
+381:       session.data.messages = result.messages
+382:       await session.save()
+383:     } catch (err) {
+384:       if (assistantLine) process.stdout.write("\n")
+385:       if (err instanceof Error && err.name === "PermissionRejectedError") {
+386:         console.log(theme.accent("Permission denied by user."))
+387:       } else if (controller.signal.aborted) {
+388:         console.log(theme.accent("Interrupted."))
+389:       } else {
+390:         console.log(theme.error(`Error: ${err instanceof Error ? err.message : String(err)}`))
+391:       }
+392:     } finally {
+393:       process.removeListener("SIGINT", sigint)
+394:     }
+395:   }
+396: 
+397:   if (oneShot) {
+398:     await turn(oneShot)
+399:     rl.close()
+400:     return
+401:   }
+402: 
+403:   const commandCtx: CommandCtx = {
+404:     getConfig: () => cfg,
+405:     async setModel(providerID, modelID) {
+406:       process.env["VEGA_PROVIDER"] = providerID
+407:       process.env["VEGA_MODEL"] = modelID
+408:       cfg = await loadConfig()
+409:       // Fail fast if the new provider/model combo can't even construct
+410:       // (e.g. missing API key) rather than discovering it mid-turn.
+411:       resolveModel(cfg)
+412:       // /models and /provider are explicit selections — remember them for
+413:       // next launch (unlike a one-off --provider/--model CLI flag, which is
+414:       // a session override and deliberately doesn't persist).
+415:       await saveModelPreference(providerID, modelID)
+416:       return cfg
+417:     },
+418:     getAgent: () => agent,
+419:     setAgent(next) {
+420:       agent = next
+421:     },
+422:     permission,
+423:     ask,
+424:     print: (text) => console.log(text),
+425:     clearMessages() {
+426:       session.data.messages = []
+427:     },
+428:     async compact() {
+429:       const model = resolveModel(cfg)
+430:       session.data.messages = await compactMessages({ messages: session.data.messages, model })
+431:       await session.save()
+432:     },
+433:   }
+434: 
+435:   // opencode's box isn't the same width for the whole app — it's fixed at
+436:   // 75 cols only on the pre-first-message home screen; once a session is
+437:   // active it expands to fill nearly the full terminal width (see the width
+438:   // comment on promptBoxWidth() in tui/logo.ts). This mirrors that: the
+439:   // very first frame drawn (right after the splash) still uses the "home"
+440:   // width, then flips to "session" width for every frame after.
+441:   let sessionActive = false
+442: 
+443:   while (true) {
+444:     const { columns } = terminalSize()
+445:     const frame = renderPromptFrame({
+446:       status: statusLine(cfg, agent, permission.isAutoApprove(), sessionActive, columns),
+447:       hint: hintBar(sessionActive, columns),
+448:       agentColor: fromRgb(...agent.color),
+449:       terminalWidth: columns,
+450:       sessionActive,
+451:     })
+452: 
+453:     console.log(frame.top.join("\n"))
+454:     const line = await ask(frame.inputPrefix)
+455:     console.log(frame.bottom.join("\n"))
+456: 
+457:     const trimmed = line.trim()
+458:     // A bare Enter with nothing typed is a no-op in real opencode too — no
+459:     // route change, no session created. Must check this BEFORE flipping
+460:     // sessionActive/printing the footer below, or hitting Enter on an empty
+461:     // home screen would permanently widen the box and print the footer with
+462:     // nothing having actually happened.
+463:     if (trimmed === "") {
+464:       // Every other path (a real turn, a slash command) prints a blank
+465:       // separator line before the next box redraws — this one didn't,
+466:       // so consecutive empty Enters visually mashed each box's hint row
+467:       // directly into the next box's top bar with no gap.
+468:       console.log()
+469:       continue
+470:     }
+471: 
+472:     // opencode's footer (cwd/branch, MCP status, version) lives outside the
+473:     // centered home container, fixed at the screen bottom (home.tsx:90-92).
+474:     // A scrolling terminal has no real "pin to bottom", so this prints it
+475:     // once, right under the first real submission, rather than repeating it
+476:     // every turn — at the same point the box itself transitions from home
+477:     // to session width.
+478:     if (!sessionActive) {
+479:       // 3 lines total (paddingTop blank, content, paddingBottom blank) to
+480:       // match footer.tsx's paddingTop={1}/paddingBottom={1} and the
+481:       // footerHeight=3 budget the splash's vertical-centering math above
+482:       // already reserves for this — a 2-line print here (missing the
+483:       // trailing blank) would silently desync from that reserved space.
+484:       console.log()
+485:       console.log(theme.gray(`cwd: ${cwd}  session: ${session.data.id}`))
+486:       console.log()
+487:       sessionActive = true
+488:     }
+489: 
+490:     if (trimmed.startsWith("/")) {
+491:       let outcome: Awaited<ReturnType<typeof runCommand>>
+492:       try {
+493:         outcome = await runCommand(trimmed, commandCtx)
+494:       } catch (err) {
+495:         console.log(theme.error(err instanceof Error ? err.message : String(err)))
+496:         console.log()
+497:         continue
+498:       }
+499:       if (outcome === "exit") break
+500:       console.log()
+501:       continue
+502:     }
+503: 
+504:     await turn(trimmed)
+505:     console.log()
+506:   }
+507: 
+508:   rl.close()
+509: }
+510: 
+511: main()
+512:   .catch((err) => {
+513:     if (err instanceof MissingApiKeyError) {
+514:       console.error(theme.error(err.message))
+515:       process.exit(1)
+516:     }
+517:     console.error(theme.error(err instanceof Error ? (err.stack ?? err.message) : String(err)))
+518:     process.exit(1)
+519:   })
+520:   .finally(() => {
+521:     process.exitCode = process.exitCode ?? 0
+522:   })
+523: 
+
+(End of file - total 523 lines)
+</content>

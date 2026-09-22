@@ -1,0 +1,438 @@
+<path>F:\Coding\AI Code\index.html</path>
+<type>file</type>
+<content>
+1: <!DOCTYPE html>
+2: <html lang="en">
+3: <head>
+4:     <meta charset="UTF-8">
+5:     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+6:     <title>Unlimited Tube - Free HD Videos</title>
+7:     <link rel="stylesheet" href="css/style.css">
+8:     <link rel="preconnect" href="https://fonts.googleapis.com">
+9:     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+10:     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+11: </head>
+12: <body>
+13:     <!-- Navigation -->
+14:     <nav class="navbar">
+15:         <div class="nav-container">
+16:             <a href="#" class="nav-logo">
+17:                 <span class="logo-text">Unlimited</span>
+18:             </a>
+19:             
+20:             <div class="nav-search">
+21:                 <input type="text" placeholder="Search videos..." id="search-input">
+22:                 <i class="fas fa-search"></i>
+23:             </div>
+24:             
+25:             <div class="nav-actions">
+26:                 <a href="#" class="nav-btn btn-icon">
+27:                     <i class="fas fa-camera"></i>
+28:                 </a>
+29:                 <a href="#" class="nav-btn btn-icon">
+30:                     <i class="fas fa-plus-square"></i>
+31:                 </a>
+32:                 <a href="#" class="nav-btn btn-icon">
+33:                     <i class="fas fa-comment-dots"></i>
+34:                     <span class="notification-badge">3</span>
+35:                 </a>
+36:                 <a href="#" class="nav-btn btn-user"><i class="fas fa-bars"></i><span class="arrow-right">></span></a>
+37:             </div>
+38:             
+39:             <div class="nav-toggle">
+40:                 <i class="fas fa-bars"></i>
+41:             </div>
+42:         </div>
+43:     </nav>
+44: 
+45:     <!-- Header / Category Section -->
+46:     <header class="site-header">
+47:         <div class="container">
+48:             <div class="header-content">
+49:                 <h1 class="logo-text">Unlimited</h1>
+50:                 <p class="header-subtitle">100% free - No limit, no signup, no credits</p>
+51:                 
+52:                 <div class="search-header">
+53:                     <input type="text" placeholder="Search videos, models, categories..." id="search-header-input">
+54:                     <button class="btn btn-red"><i class="fas fa-search"></i> Search</button>
+55:                 </div>
+56:                 
+57:                 <div class="header-filters">
+58:                     <div class="filter-group">
+59:                         <button class="filter-btn active" data-filter="all">All Videos</button>
+60:                         <button class="filter-btn" data-filter="trending">Trending</button>
+61:                         <button class="filter-btn" data-filter="newest">Newest</button>
+62:                         <button class="filter-btn" data-filter="popular">Popular</button>
+63:                     </div>
+64:                 </div>
+65:             </div>
+66:         </div>
+67:     </header>
+68: 
+69:     <!-- Main Content -->
+70:     <main class="main-content">
+71:         <div class="container">
+72:             <div class="content-wrapper">
+73:                 <!-- Left Sidebar - Categories -->
+74:                 <aside class="sidebar-left">
+75:                     <div class="sidebar">
+76:                         <div class="sidebar-section">
+77:                             <h3 class="sidebar-title">Categories</h3>
+78:                             <div class="category-list">
+79:                                 <a href="#" class="category-item active">
+80:                                     <i class="fas fa-film"></i>
+81:                                     <span>All Categories</span>
+82:                                 </a>
+83:                                 <a href="#" class="category-item">
+84:                                     <i class="fas fa-hot-tub-person"></i>
+85:                                     <span>18+ Content</span>
+86:                                 </a>
+87:                                 <a href="#" class="category-item">
+88:                                     <i class="fas fa-water"></i>
+89:                                     <span>Pool & Beach</span>
+90:                                 </a>
+91:                                 <a href="#" class="category-item">
+92:                                     <i class="fas fa-briefs"></i>
+93:                                     <span>Swimsuits</span>
+94:                                 </a>
+95:                                 <a href="#" class="category-item">
+96:                                     <i class="fas fa-running"></i>
+97:                                     <span>Gym & Fitness</span>
+98:                                 </a>
+99:                                 <a href="#" class="category-item">
+100:                                     <i class="fas fa-glasses"></i>
+101:                                     <span>Eye Candy</span>
+102:                                 </a>
+103:                             </div>
+104:                         </div>
+105:                         
+106:                         <div class="sidebar-section">
+107:                             <h3 class="sidebar-title">Trending Models</h3>
+108:                             <div class="model-list">
+109:                                 <div class="model-item">
+110:                                     <div class="model-thumb">
+111:                                         <i class="fas fa-user"></i>
+112:                                     </div>
+113:                                     <div class="model-info">
+114:                                         <h4>Sarah</h4>
+115:                                         <span>984 videos</span>
+116:                                     </div>
+117:                                 </div>
+118:                                 <div class="model-item">
+119:                                     <div class="model-thumb">
+120:                                         <i class="fas fa-user"></i>
+121:                                     </div>
+122:                                     <div class="model-info">
+123:                                         <h4>Jessica</h4>
+124:                                         <span>1243 videos</span>
+125:                                     </div>
+126:                                 </div>
+127:                                 <div class="model-item">
+128:                                     <div class="model-thumb">
+129:                                         <i class="fas fa-user"></i>
+130:                                     </div>
+131:                                     <div class="model-info">
+132:                                         <h4>Amanda</h4>
+133:                                         <span>856 videos</span>
+134:                                     </div>
+135:                                 </div>
+136:                             </div>
+137:                         </div>
+138:                     </div>
+139:                 </aside>
+140: 
+141:                 <!-- Video Grid -->
+142:                 <section class="video-section">
+143:                     <div class="video-grid">
+144:                         <!-- MIA KHALIFA - FIRST COLLECTION -->
+145:                         <div class="video-card" data-category="trending">
+146:                             <div class="video-thumbnail">
+147:                                 <div class="video-preview-icon">
+148:                                     <i class="fas fa-play"></i>
+149:                                 </div>
+150:                                 <div class="video-duration">20:15</div>
+151:                                 <div class="video-rating">
+152:                                     <i class="fas fa-star"></i>
+153:                                     <span>⭐⭐⭐⭐⭐</span>
+154:                                 </div>
+155:                             </div>
+156:                             <h4 class="video-title">MIA KHALIFA - The Love (Official Video)</h4>
+157:                             <div class="video-meta">
+158:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+159:                                 <span class="video-views">45.2M views</span>
+160:                                 <span class="video-date">1 year ago</span>
+161:                             </div>
+162:                         </div>
+163: 
+164:                         <div class="video-card">
+165:                             <div class="video-thumbnail">
+166:                                 <div class="video-preview-icon">
+167:                                     <i class="fas fa-play"></i>
+168:                                 </div>
+169:                                 <div class="video-duration">27:32</div>
+170:                                 <div class="video-rating">
+171:                                     <i class="fas fa-star"></i>
+172:                                     <span>⭐⭐⭐⭐⭐</span>
+173:                                 </div>
+174:                             </div>
+175:                             <h4 class="video-title">MIA KHALIFA - All Nighter (Extended)</h4>
+176:                             <div class="video-meta">
+177:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+178:                                 <span class="video-views">38.7M views</span>
+179:                                 <span class="video-date">2 years ago</span>
+180:                             </div>
+181:                         </div>
+182: 
+183:                         <div class="video-card">
+184:                             <div class="video-thumbnail">
+185:                                 <div class="video-preview-icon">
+186:                                     <i class="fas fa-play"></i>
+187:                                 </div>
+188:                                 <div class="video-duration">35:48</div>
+189:                                 <div class="video-rating">
+190:                                     <i class="fas fa-star"></i>
+191:                                     <span>⭐⭐⭐⭐⭐</span>
+192:                                 </div>
+193:                             </div>
+194:                             <h4 class="video-title">MIA KHALIFA - First Time Ever (Best of 2014)</h4>
+195:                             <div class="video-meta">
+196:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+197:                                 <span class="video-views">52.1M views</span>
+198:                                 <span class="video-date">2 years ago</span>
+199:                             </div>
+200:                         </div>
+201: 
+202:                         <div class="video-card">
+203:                             <div class="video-thumbnail">
+204:                                 <div class="video-preview-icon">
+205:                                     <i class="fas fa-play"></i>
+206:                                 </div>
+207:                                 <div class="video-duration">24:10</div>
+208:                                 <div class="video-rating">
+209:                                     <i class="fas fa-star"></i>
+210:                                     <span>⭐⭐⭐⭐⭐</span>
+211:                                 </div>
+212:                             </div>
+213:                             <h4 class="video-title">MIA KHALIFA - Vacation (Full Video)</h4>
+214:                             <div class="video-meta">
+215:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+216:                                 <span class="video-views">41.3M views</span>
+217:                                 <span class="video-date">1 year ago</span>
+218:                             </div>
+219:                         </div>
+220: 
+221:                         <div class="video-card">
+222:                             <div class="video-thumbnail">
+223:                                 <div class="video-preview-icon">
+224:                                     <i class="fas fa-play"></i>
+225:                                 </div>
+226:                                 <div class="video-duration">22:55</div>
+227:                                 <div class="video-rating">
+228:                                     <i class="fas fa-star"></i>
+229:                                     <span>⭐⭐⭐⭐⭐</span>
+230:                                 </div>
+231:                             </div>
+232:                             <h4 class="video-title">MIA KHALIFA - 4K First Time (Premium)</h4>
+233:                             <div class="video-meta">
+234:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+235:                                 <span class="video-views">67.8M views</span>
+236:                                 <span class="video-date">3 years ago</span>
+237:                             </div>
+238:                         </div>
+239: 
+240:                         <div class="video-card">
+241:                             <div class="video-thumbnail">
+242:                                 <div class="video-preview-icon">
+243:                                     <i class="fas fa-play"></i>
+244:                                 </div>
+245:                                 <div class="video-duration">29:40</div>
+246:                                 <div class="video-rating">
+247:                                     <i class="fas fa-star"></i>
+248:                                     <span>⭐⭐⭐⭐⭐</span>
+249:                                 </div>
+250:                             </div>
+251:                             <h4 class="video-title">MIA KHALIFA - The Original (Best Scenes)</h4>
+252:                             <div class="video-meta">
+253:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+254:                                 <span class="video-views">48.9M views</span>
+255:                                 <span class="video-date">1 year ago</span>
+256:                             </div>
+257:                         </div>
+258: 
+259:                         <div class="video-card">
+260:                             <div class="video-thumbnail">
+261:                                 <div class="video-preview-icon">
+262:                                     <i class="fas fa-play"></i>
+263:                                 </div>
+264:                                 <div class="video-duration">26:18</div>
+265:                                 <div class="video-rating">
+266:                                     <i class="fas fa-star"></i>
+267:                                     <span>⭐⭐⭐⭐⭐</span>
+268:                                 </div>
+269:                             </div>
+270:                             <h4 class="video-title">MIA KHALIFA - Sunday Night (Extended)</h4>
+271:                             <div class="video-meta">
+272:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+273:                                 <span class="video-views">33.5M views</span>
+274:                                 <span class="video-date">2 years ago</span>
+275:                             </div>
+276:                         </div>
+277: 
+278:                         <div class="video-card">
+279:                             <div class="video-thumbnail">
+280:                                 <div class="video-preview-icon">
+281:                                     <i class="fas fa-play"></i>
+282:                                 </div>
+283:                                 <div class="video-duration">31:22</div>
+284:                                 <div class="video-rating">
+285:                                     <i class="fas fa-star"></i>
+286:                                     <span>⭐⭐⭐⭐⭐</span>
+287:                                 </div>
+288:                             </div>
+289:                             <h4 class="video-title">MIA KHALIFA - Best 4K Collection (Rare)</h4>
+290:                             <div class="video-meta">
+291:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+292:                                 <span class="video-views">55.6M views</span>
+293:                                 <span class="video-date">1 year ago</span>
+294:                             </div>
+295:                         </div>
+296: 
+297:                         <div class="video-card">
+298:                             <div class="video-thumbnail">
+299:                                 <div class="video-preview-icon">
+300:                                     <i class="fas fa-play"></i>
+301:                                 </div>
+302:                                 <div class="video-duration">28:05</div>
+303:                                 <div class="video-rating">
+304:                                     <i class="fas fa-star"></i>
+305:                                     <span>⭐⭐⭐⭐⭐</span>
+306:                                 </div>
+307:                             </div>
+308:                             <h4 class="video-title">MIA KHALIFA - Party All Night (Full)</h4>
+309:                             <div class="video-meta">
+310:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+311:                                 <span class="video-views">42.2M views</span>
+312:                                 <span class="video-date">2 years ago</span>
+313:                             </div>
+314:                         </div>
+315: 
+316:                         <div class="video-card">
+317:                             <div class="video-thumbnail">
+318:                                 <div class="video-preview-icon">
+319:                                     <i class="fas fa-play"></i>
+320:                                 </div>
+321:                                 <div class="video-duration">25:50</div>
+322:                                 <div class="video-rating">
+323:                                     <i class="fas fa-star"></i>
+324:                                     <span>⭐⭐⭐⭐⭐</span>
+325:                                 </div>
+326:                             </div>
+327:                             <h4 class="video-title">MIA KHALIFA - Backstage (Exclusive)</h4>
+328:                             <div class="video-meta">
+329:                                 <span class="model-name">MIA KHALIFA ⭐</span>
+330:                                 <span class="video-views">39.1M views</span>
+331:                                 <span class="video-date">1 year ago</span>
+332:                             </div>
+333:                         </div>
+334:                     </div>
+335: 
+336:                     <!-- Load More -->
+337:                     <div class="load-more-section">
+338:                         <button class="btn btn-red btn-large">Load More Videos</button>
+339:                     </div>
+340:                 </section>
+341:             </div>
+342:         </div>
+343:     </main>
+344: 
+345:     <!-- Footer -->
+346:     <footer class="site-footer">
+347:         <div class="container">
+348:             <div class="footer-content">
+349:                 <a href="#" class="footer-logo">
+350:                     <span class="footer-logo-text">Unlimited</span>
+351:                 </a>
+352:                 <p class="footer-tagline">100% free - No limit, no signup, no credits required!</p>
+353:                 
+354:                 <div class="footer-social">
+355:                     <a href="#" class="social-btn"><i class="fab fa-facebook"></i></a>
+356:                     <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+357:                     <a href="#" class="social-btn"><i class="fab fa-tiktok"></i></a>
+358:                     <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+359:                 </div>
+360:                 
+361:                 <p class="footer-copy">&copy; 2026 Unlimited Tube. All rights reserved.</p>
+362:             </div>
+363:             
+364:             <div class="footer-links">
+365:                 <a href="#" class="footer-link">About</a>
+366:                 <a href="#" class="footer-link">FAQs</a>
+367:                 <a href="#" class="footer-link">Premium</a>
+368:                 <a href="#" class="footer-link">Contact Us</a>
+369:             </div>
+370:         </div>
+371:     </footer>
+372: 
+373:     <!-- Video Modal -->
+374:     <div class="video-modal" id="videoModal">
+375:         <div class="modal-content">
+376:             <button class="modal-close"><i class="fas fa-times"></i></button>
+377:             <div class="modal-body">
+378:                 <div class="modal-video-wrapper">
+379:                     <div class="video-placeholder">
+380:                         <i class="fas fa-play-circle"></i>
+381:                         <span class="video-title-placeholder">Video Playing Here</span>
+382:                     </div>
+383:                 </div>
+384:                 <div class="modal-info">
+385:                     <h3 id="modal-video-title">Video Title</h3>
+386:                     <p id="modal-video-desc">Video description goes here...</p>
+387:                     <div class="modal-actions">
+388:                         <button class="btn btn-red modal-btn"><i class="fas fa-external-link-alt"></i> Open in New Tab</button>
+389:                     </div>
+390:                 </div>
+391:             </div>
+392:         </div>
+393:     </div>
+394: 
+395:     <!-- Share/Info Modal -->
+396:     <div class="info-modal" id="infoModal">
+397:         <div class="modal-content">
+398:             <button class="modal-close"><i class="fas fa-times"></i></button>
+399:             <div class="modal-body">
+400:                 <div class="info-header">
+401:                     <h3>Video Information</h3>
+402:                 </div>
+403:                 <div class="info-body">
+404:                     <div class="info-row">
+405:                         <span class="info-label">Model:</span>
+406:                         <span class="info-value" id="info-model">Model Name</span>
+407:                     </div>
+408:                     <div class="info-row">
+409:                         <span class="info-label">Views:</span>
+410:                         <span class="info-value" id="info-views">1M views</span>
+411:                     </div>
+412:                     <div class="info-row">
+413:                         <span class="info-label">Date:</span>
+414:                         <span class="info-value" id="info-date">2 days ago</span>
+415:                     </div>
+416:                     <div class="info-row">
+417:                         <span class="info-label">Duration:</span>
+418:                         <span class="info-value" id="info-duration">12:45</span>
+419:                     </div>
+420:                 </div>
+421:                 <div class="info-actions">
+422:                     <button class="btn btn-red"><i class="fas fa-share-alt"></i> Share</button>
+423:                     <button class="btn btn-transparent"><i class="fas fa-eye"></i> Preview</button>
+424:                 </div>
+425:             </div>
+426:         </div>
+427:     </div>
+428: 
+429:     <script src="js/script.js"></script>
+430: </body>
+431: </html>
+432: 
+
+(End of file - total 432 lines)
+</content>

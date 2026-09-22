@@ -1,0 +1,23 @@
+{
+  "id": "ses_mubuabs6_u62ef7",
+  "createdAt": 1790031078438,
+  "messages": [
+    {
+      "role": "user",
+      "content": "reply with exactly: state changes work"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants me to reply with exactly one line of text. This is a simple response task, not requiring any file operations or shell commands.\n"
+        },
+        {
+          "type": "text",
+          "text": "state changes work"
+        }
+      ]
+    }
+  ]
+}

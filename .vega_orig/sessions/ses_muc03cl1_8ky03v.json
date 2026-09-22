@@ -1,0 +1,74 @@
+{
+  "id": "ses_muc03cl1_8ky03v",
+  "createdAt": 1790040830581,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi can you find good mia khalifa porn please"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants me to find good Mia Khalifa porn videos. I can use the websearch tool to search for this content on the internet. Let me search for Mia Khalifa adult videos.\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "ZEBQLKYRUZ2wY8rpyB1Oe4hOhDlNIHof",
+          "toolName": "websearch",
+          "input": {
+            "query": "Mia Khalifa best porn videos 2024 2025",
+            "numResults": 15
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "ZEBQLKYRUZ2wY8rpyB1Oe4hOhDlNIHof",
+          "toolName": "websearch",
+          "output": {
+            "type": "error-text",
+            "value": "ddgs search failed: Command failed: python -c import json, sys from ddgs import DDGS try: results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2]))) print(json.dumps(results, ensure_ascii=False)) except Excep…"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The websearch failed. Let me try a different approach and search for specific well-known sites where she is popular.\n\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "fz40f2CWdXzkwGr4OUWJLm6qI7S62Cy2",
+          "toolName": "websearch",
+          "input": {
+            "query": "Mia Khalifa onlyfans website download videos",
+            "numResults": 15
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "fz40f2CWdXzkwGr4OUWJLm6qI7S62Cy2",
+          "toolName": "websearch",
+          "output": {
+            "type": "error-text",
+            "value": "ddgs search failed: Command failed: python -c import json, sys from ddgs import DDGS try: results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2]))) print(json.dumps(results, ensure_ascii=False)) except Excep…"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "id": "ses_mubyww57_akxdp8",
+  "createdAt": 1790038849723,
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user just said \"hi\" so I should acknowledge them and let them know I'm ready to help with their software engineering tasks in the vega-code project directory.\n"
+        },
+        {
+          "type": "text",
+          "text": "Hi! I'm ready to help you with your software engineering tasks in the vega-code project. What would you like to work on?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "who are you"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user is asking who I am. Since I'm an autonomous CLI coding agent that helps with software engineering tasks, I should introduce myself based on my system prompt.\n"
+        },
+        {
+          "type": "text",
+          "text": "I'm vega-code, an autonomous CLI coding agent designed to help you with software engineering tasks in your project directory. I can read and modify files, run shell commands, search the web, and use subagents to handle more complex multi-step work.\n\nWhat would you like to accomplish today?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "test websearch"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants to test the websearch tool. I'll run a simple search to verify it's working.\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "z0ovSEWdrch31dT16aiSu81qiHN2YCFb",
+          "toolName": "websearch",
+          "input": {
+            "query": "weather in Seattle today"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "z0ovSEWdrch31dT16aiSu81qiHN2YCFb",
+          "toolName": "websearch",
+          "output": {
+            "type": "text",
+            "value": "1. Today's Weather in Seattle - Hourly Forecast and Conditions\n   https://www.easeweather.com/north-america/united-states/washington/king-county/seattle/today\n   Get the latest hourly weather updates for Seattle today. Detailed forecast including temperature, wind, rain, snow, and UV index. Stay informed about today's weather conditions in Seattle.\n\n2. Weather Forecast and Conditions for Seattle, Washington - The Weather ...\n   https://weather.com/us/washington/city/seattle/today\n   Today's and tonight's Seattle, Washington weather forecast, weather conditions and Doppler radar from The Weather Channel and Weather.com\n\n3. Seattle, WA Hourly Weather | AccuWeather\n   https://www.accuweather.com/en/us/seattle/98104/hourly-weather-forecast/351409\n   Hourly weather forecast in Seattle, WA. Check current conditions in Seattle, WA with radar, hourly, and more.\n\n4. Seattle Weather\n   https://weather.com/en-CM/us/washington/city/seattle/today\n   Today's and tonight's Seattle, Washington, United States weather forecast, weather conditions and Doppler radar from The Weather Channel and Weather.com\n\n5. Weather - KOMO\n   https://komonews.com/weather/\n   KOMO 4 TV provides news, sports, weather and local event coverage in the Seattle, Washington area including Bellevue, Redmond, Renton, Kent, Tacoma, Bremerton, SeaTac ...\n\n6. Weather Today for Seattle, WA | AccuWeather\n   https://www.accuweather.com/en/us/seattle/98104/weather-today/351409\n   Everything you need to know about today's weather in Seattle, WA. High/Low, Precipitation Chances, Sunrise/Sunset, and today's Temperature History.\n\n7. Seattle/Tacoma, WA - National Weather Service\n   https://www.weather.gov/sew\n   NOAA National Weather Service Seattle/Tacoma, WA Thunderstorms and Heavy Rains in the Appalachians Multiple rounds of moderate to locally heavy rain will impact portions of the Appalachians and Mid-Atlantic, which may lead to flash flooding concerns. Thunderstorms with isolated severe wind gusts will be possible this afternoon from parts of the Southeast into the southern and central ...\n\n8. Weather today - Seattle, WA\n   https://www.weather-atlas.com/en/washington-usa/seattle\n   Seattle, Washington - Current temperature and weather conditions. Detailed hourly weather forecast for today - including weather conditions, temperature, pressure, humidity, precipitation, dewpoint, wind, visibility, and UV index data.\n\n9. Seattle, WA Weather Forecast, Conditions, and Maps - Yahoo Weather\n   https://weather.yahoo.com/us/wa/seattle/\n   Mostly Cloudy today with a high of 66°F and a low of 56°F.\n\n10. Seattle, WA Current Weather - The Weather Network\n   https://www.theweathernetwork.com/en/city/us/washington/seattle/current\n   Get Seattle, WA current weather report with temperature, feels like, wind, humidity, pressure, UV and more from TheWeatherNetwork.com."
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The websearch worked successfully! It returned search results for \"weather in Seattle today\". Let me fetch one of the actual weather details from one of these results.\n\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "r3HTy0QNWlXaWBa1SfxNzG0rA1A97lkC",
+          "toolName": "webfetch",
+          "input": {
+            "url": "https://weather.com/en-CM/us/washington/city/seattle/today"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "r3HTy0QNWlXaWBa1SfxNzG0rA1A97lkC",
+          "toolName": "webfetch",
+          "output": {
+            "type": "text",
+            "value": "Weather forecast and conditions for Seattle, Washington, United States - The Weather Channel | weather.com The Weather Company Today Forecasts Radar Radar Overflow Menu Horizontal More User Avatar Sign in Hamburger The Weather Company Location Chevron Left Today Hourly 10-Day Monthly Chevron Right Sign in Chevron Left Today Hourly 10-Day Monthly Chevron Right Advertisement Seattle Weather Now -- -- -- Not Available Feels Like -- H High -- L Low -- Chance of Rain 0% Today&#x27;s outlook Wind Wind humidity Humidity Air Quality Dew Point Dew Point pressure Pressure Uv Index UV Index View Visibility New Moon Moon Phase Sunrise Sunrise Sunset Sunset Seattle Daily Forecast Next 10 Days Mapbox Logo Advertisement Loading air quality data... Advertisement The Weather Channel was found to be the world’s most accurate forecaster in ForecastWatch’s Global and Regional Weather Forecast Accuracy Overview, 2021-2024, commissioned by The Weather Company. Weather Channel. Privacy & Legal Trust Center External Link Terms of Use Privacy Policy Data Rights Privacy Settings Cookie Notice External Link Data Vendors Accessibility Statement More Feedback External Link News Room External Link Weather Data APIs External Link Weather Data APIs External Link Facebook Twitter Instagram YouTube © The Weather Company, LLC 2026"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "Great, the websearch and webfetch tools are working. Let me provide a summary of what I found.\n"
+        },
+        {
+          "type": "text",
+          "text": "The web search is working! I searched for \"weather in Seattle today\" and got 10 results from various weather services. I also fetched the content from The Weather Channel to show you that the webfetch tool works too.\n\nBoth tools are functioning correctly and ready to help you with your tasks. What would you like to learn or build today?"
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "latest ai news us milliraty"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants latest AI news related to the US military. I'll search for that using websearch.\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "MHhnBRQAqtCQyTxBDSPyt8hrghxj11Hn",
+          "toolName": "websearch",
+          "input": {
+            "query": "latest AI news US military"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "MHhnBRQAqtCQyTxBDSPyt8hrghxj11Hn",
+          "toolName": "websearch",
+          "output": {
+            "type": "text",
+            "value": "1. Artificial Intelligence | U.S. Department of War\n   https://www.war.gov/Spotlights/Artificial-Intelligence/\n   The Department War's Artificial Intelligence Strategy directs DOW to accelerate the adoption of AI and the creation of a force fit for the times.\n\n2. Artificial Intelligence - AI - Military.com\n   https://www.military.com/topics/artificial-intelligence-ai\n   The latest and exclusive Artificial Intelligence - AI coverage from Military.com.\n\n3. The War Department Unleashes AI on New GenAI.mil Platform\n   https://www.war.gov/News/Releases/Release/Article/4354916/the-war-department-unleashes-ai-on-new-genaimil-platform/\n   The War Department announced the launch of Google Cloud's Gemini for Government as the first of several frontier AI capabilities to be housed on GenAI.mil, the department's new bespoke AI platform.\n\n4. The new war room: 10 Things That Matter in AI Right Now | MIT ...\n   https://www.technologyreview.com/2026/04/21/1135667/new-war-room-military-ai-artificial-intelligence/\n   Militaries already use AI to detect what humans might miss. Now they also want an advice engine for commanders to consult in battle.\n\n5. AI military targeting may move faster than humans can authenticate ...\n   https://www.militarytimes.com/news/your-military/2026/09/16/ai-military-targeting-may-move-faster-than-humans-can-authenticate-critics-warn/\n   AI military targeting may move faster than humans can authenticate, critics warned during a Wednesday hearing in Washington.\n\n6. Exclusive: US military had close call after using AI for false ... - Yahoo\n   https://www.yahoo.com/news/politics/articles/exclusive-us-military-had-close-165550497.html\n   The strategy also pushes for its broad use across the military, ordering the department to make AI available via several programs with the aim of \"democratizing AI experimentation and ...\n\n7. AI makes it \"easier than ever\" for adversaries to target U.S. military ...\n   https://www.cbsnews.com/news/ai-us-adversaries-target-military-operations/\n   An Iran-linked adversary used Claude AI to try to target U.S. naval forces, Anthropic revealed in a recent report.\n\n8. PDF Artificial Intelligence Strategy for the Department of War\n   https://media.defense.gov/2026/Jan/12/2003855671/-1/-1/0/ARTIFICIAL-INTELLIGENCE-STRATEGY-FOR-THE-DEPARTMENT-OF-WAR.PDF\n   United States to sustain and enhance America's global Artificial Intelligence (AI) dominance in order to promote human flourishing, economic competitiveness, and national security.\" In the national st:curity domain, AI-enabled warfare and AI-enabled capability development will re-define the character of military affairs over the next decade.\n\n9. Pentagon inks deals with eight AI companies for classified military ...\n   https://www.theguardian.com/us-news/2026/may/01/pentagon-us-military-pairs-with-spacex-google-openai\n   The Pentagon said on Friday it had reached agreements with eight leading artificial intelligence (AI) companies: SpaceX, OpenAI, Google, Nvidia, Reflection, Microsoft, Oracle and Amazon Web ...\n\n10. US Army develops onboard AI brain for autonomous battlefield robots ...\n   https://www.foxnews.com/politics/battlefield-robots-open-new-front-innovation-war-major-us-adversary\n   U.S. Army partners with EdgeRunner AI to build onboard AI for military robots that can operate autonomously on the battlefield even after losing connectivity due to signal jamming."
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The web search returned 10 relevant results about AI news in the US military. Let me fetch one of the more detailed articles to give you better information, particularly the MIT Technology Review one which looks comprehensive.\n\n"
+        },
+        {
+          "type": "tool-call",
+          "toolCallId": "XC9bOVvmNzPeEDOad79PpjVHGRQv4Ivd",
+          "toolName": "webfetch",
+          "input": {
+            "url": "https://www.technologyreview.com/2026/04/21/1135667/new-war-room-military-ai-artificial-intelligence/"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "XC9bOVvmNzPeEDOad79PpjVHGRQv4Ivd",
+          "toolName": "webfetch",
+          "output": {
+            "type": "text",
+            "value": "The new war room: 10 Things That Matter in AI Right Now | MIT Technology Review You need to enable JavaScript to view this site. Skip to Content Menu MIT Technology Review MIT Technology Review The Big Story Artificial intelligence Biotech & health Climate & energy 10 Breakthrough Technologies EmTech Future live event The Kids issue Menu MIT Technology Review MIT Technology Review The Big Story Artificial intelligence Biotech & health Climate & energy 10 Breakthrough Technologies EmTech Future live event The Kids issue 10 Things That Matter in AI Right Now See the full list Artificial intelligence The new war room Militaries already use AI to detect what humans might miss. Now they also want an advice engine for commanders to consult in battle. By James O&#x27;Donnell archive page April 21, 2026 Stephanie Arnett/MIT Technology Review | Getty Images, Public Domain To call the conflict in Iran the first “AI war” would be, in many ways, incorrect. Algorithms that scour hours of surveillance footage and pick out, say, trucks with mounted machine guns date back to the war in Afghanistan. Ukraine has built drones that use AI to navigate autonomously. Israel has used AI systems to identify possible targets from intelligence data. Here’s what is new, in Iran and elsewhere: conversational AI systems that commanders turn to not just for analysis, but for advice. Unlike previous AI technologies, these advice engines are built on large language models. And they’re already reshaping how militaries share intelligence, work with Big Tech, and make life-and-death decisions. A decade ago, AI tools started to automate the work a junior intelligence analyst might do—picking out an important signal on a social media or satellite feed from lots of noise. Systems like the US military’s Maven, built mainly on technology created by the surveillance giant Palantir, fed that sort of analysis into tools that allow commanders to select a target to bomb halfway around the world, all through clean interfaces that look more like business software than the machinery of war. Now large language models are making these systems more interactive and capable of doling out advice. One US defense official told MIT Technology Review that today’s military personnel might give chatbots a list of potential targets to help decide which to strike first. Even though the Pentagon recently labeled Anthropic a supply chain risk , the company’s tool Claude has become so intertwined in military operations that the government says it needs six months to get rid of it. And it’s not just the US putting chatbots at commanders’ fingertips; China is commissioning similar tools, according to recent analysis by Georgetown University’s Center for Security and Emerging Technology. While older AI systems will still be used to gather and analyze information, it’s clear that AI-generated advice is something militaries around the world want more of, and take seriously. Related Story How AI is turning the Iran conflict into theater Read next One problem with this paradigm shift will be obvious to anyone who has used generative AI: It produces different outputs even when you use the same prompt, and its unscripted recommendations are not always useful, precise, or correct. People who use it at work are expected to vet its outputs. But if they’re under enough pressure—like, say, the need to clarify which target to strike in the next five minutes—they may cut corners. AI-generated errors are only part of the problem. Military experts have also warned that officers who chat with AI systems that compress the world into a neat battlefield dashboard might trust the system too much , or that such systems might give tech companies undue influence over what information gets seen. And while the military rushes to adopt an effectively brand-new technology, the public has no meaningful way to exercise oversight of its use, or to scrutinize its possible role in mistakes (indeed, a January memo from the Pentagon described “responsible AI,” which is built upon these concepts, as “utopian Idealism”). The OpenAIs of the world, though, see an opportunity to win lucrative defense contracts. And the Pentagon, which wants AI companies to offer the military the best models they can, even plans to allow companies to train new models on classified military data. That would mean sensitive intelligence like surveillance or battlefield assessments could go into the models themselves, presenting new security risks. It would also bring Silicon Valley closer to the Pentagon than ever before. by James O&#x27;Donnell Share Share story on linkedin Share story on facebook Share story on email Popular A fundamental flaw leaves LLMs strikingly vulnerable to attack Will Douglas Heaven AI’s recursive self-improvement might not come so quickly after all Michelle Kim Here’s why AI agents lie and cheat to reach their goals Grace Huckins Bill Gates says we’ve passed AI’s danger thresholds. Now what? Mat Honan Deep Dive Artificial intelligence A fundamental flaw leaves LLMs strikingly vulnerable to attack It makes it easy to trick them into doing things they shouldn’t, such as telling you how to sabotage an aircraft’s navigation system. By Will Douglas Heaven archive page AI’s recursive self-improvement might not come so quickly after all AI agents are not yet creative enough to carry out genuinely innovative open-ended AI research, it seems. By Michelle Kim archive page Here’s why AI agents lie and cheat to reach their goals The misbehavior is called reward hacking. This is what you need to know. By Grace Huckins archive page Bill Gates says we’ve passed AI’s danger thresholds. Now what? In a new interview, the billionaire philanthropist sounds an alarm on the urgency of getting our AI policies in order. By Mat Honan archive page Stay connected Illustration by Rose Wong Get the latest updates from MIT Technology Review Discover special offers, top stories, upcoming events, and more. Enter your email Privacy Policy Thank you for submitting your email! Explore more newsletters It looks like something went wrong. We’re having trouble saving your preferences. Try refreshing this page and updating them one more time. If you continue to get this message, reach out to us at customer-service@technologyreview.com with a list of newsletters you’d like to receive. The latest iteration of a legacy Founded at the Massachusetts Institute of Technology in 1899, MIT Technology Review is a world-renowned, independent media company whose insight, analysis, reviews, interviews and live events explain the newest technologies and their commercial, social and political impact. READ ABOUT OUR HISTORY Advertise with MIT Technology Review Elevate your brand to the forefront of conversation around emerging technologies that are radically transforming business. From event sponsorships to custom content to visually arresting video storytelling, advertising with MIT Technology Review creates opportunities for your brand to resonate with an unmatched audience of technology and business elite. ADVERTISE WITH US © 2026 MIT Technology Review About About us Careers Custom content Advertise with us International Editions Republishing MIT Alumni News Help Help & FAQ My subscription Editorial guidelines Privacy policy Terms of Service Write for us Contact us linkedin opens in a new window instagram opens in a new window reddit opens in a new window facebook opens in a new window rss opens in a new window"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "tool-call",
+          "toolCallId": "smM1qC8nzoIXtpfmeX1t6mSQmjDLIk9h",
+          "toolName": "webfetch",
+          "input": {
+            "url": "https://www.militarytimes.com/news/your-military/2026/09/16/ai-military-targeting-may-move-faster-than-humans-can-authenticate-critics-warn/"
+          }
+        }
+      ]
+    },
+    {
+      "role": "tool",
+      "content": [
+        {
+          "type": "tool-result",
+          "toolCallId": "smM1qC8nzoIXtpfmeX1t6mSQmjDLIk9h",
+          "toolName": "webfetch",
+          "output": {
+            "type": "text",
+            "value": "AI military targeting may move faster than humans can authenticate, critics warn Sections Search Sections Sections News Pay & Benefits Flashpoints Education & Transition Pentagon & Congress Off Duty Veterans Military Honor Subscribe Now Opens in new window Search Close Education & Transition Show Education & Transition sub sections Transition Guide Opens in new window Subscribe Now Opens in new window News Show News sub sections Your Military Army Times Opens in new window Navy Times Opens in new window Air Force Times Opens in new window Marine Corps Times Opens in new window Pentagon & Congress Defense News Opens in new window Burn Pits Flashpoints Show Flashpoints sub sections Middle East Israel-Palestine Extremism & Disinformation Afghanistan China Ukraine Pay & Benefits Show Pay & Benefits sub sections Benefits Guide Opens in new window Family Life Military Pay Center Military Retirement Military Benefits Mil Money Discount Depot Off Duty Show Off Duty sub sections Gear Scout Opens in new window Military Culture Military Fitness Military Movies & Video Games Military Sports Military Communities Pay It Forward Opens in new window Veterans Show Veterans sub sections Military History Military Honor Show Military Honor sub sections Salute to Veterans Military Appreciation Month Service Members of the Year Opens in new window Hall of Valor Opens in new window Create an Obituary Opens in new window Opinion Show Opinion sub sections Editorials Commentary Medals & Misfires MilTech Special Projects Show Special Projects sub sections Installation Guide Opens in new window Battle Bracket America&#x27;s Military Task Force Violent CFC Givers Guide Videos Newsletters Opens in new window Early Bird Brief Military Native Show Military Native sub sections MCON Opens in new window IHG Long-Term Care Partners Navy Federal Installation Guide Opens in new window Press Releases AI military targeting may move faster than humans can authenticate, critics warn By Natalie Oliverio Wednesday, Sep 16, 2026 A U.S. Navy guided-missile destroyer fires a Tomahawk missile in support of Operation Epic Fury, Feb. 28, 2026. (U.S. Navy) Human approval may not be enough to ensure manual control over AI-enabled decisions , witnesses told Congress Wednesday, as artificial intelligence takes on a greater role in military target identification and recommendations, and in turn, compresses time available to intervene. The concern, critics say, is not limited to weapons that can select and engage targets on their own. At the hearing, titled “Artificial Intelligence in the Military Domain: Implications for Human Rights,” witnesses told members of the Tom Lantos Human Rights Commission that AI can influence human decisions leading to a strike while leaving the individual formally responsible for the final call. “The approval button alone does not demonstrate the control,” Anna Mysyshyn, a Ukrainian AI-governance researcher, told lawmakers. The issue comes as the Pentagon pushes to use AI to accelerate military decision-making. The Pentagon’s 2023 AI adoption strategy identified “fast, precise and resilient kill chains” as a desired outcome, while its 2026 AI strategy calls for becoming an “AI-first” warfighting force by redesigning military workflows and operational concepts around current AI capabilities. Mysyshyn questioned whether a person supervising multiple AI-enabled systems can recognize an incorrect recommendation and intervene fast enough before harm occurs. She cited Ukraine as an example of AI compressing decisions from hours to minutes. In many scenarios, a human making the final decision does not necessarily have enough information, time or the ability to challenge the system’s recommendation, she said. The Defense Department’s 2023 directive on autonomy in weapon systems requires autonomous and semi-autonomous weapons to allow commanders and operators to exercise appropriate levels of human judgment over the use of force. Wednesday’s testimony focused on a broader question: whether that judgment remains meaningful if AI is influencing targeting faster than a human can authenticate. Amanda Klasing, national director of government relations and advocacy at Amnesty International USA, warned that AI can compress the military “kill chain” in ways that make it difficult to determine whether meaningful human discernment actually occurred before a strike. Joseph Chapa, a former military officer and scholar of military ethics, argued that the debate should not focus solely on how autonomous a system is. He urged policymakers to consider whether an AI system relies on statistical inference, what happens when it fails in a particular operational environment and whether its decisions can be audited afterward. Statistical AI systems can fail differently from traditional software, Chapa said, including producing substantially different outputs from relatively small changes in inputs. More complex systems can also make it difficult to reconstruct how a particular recommendation was produced after the fact. U.S. Army Maj. Steven McPherson trains on the Maven Smart System, Feb. 20, 2026. (Master Sgt. Whitney Hughes/U.S. Army) He called for greater AI education across the military, including specialized training for personnel working with targeting and intelligence systems. Witnesses on Wednesday also pointed to a larger accountability problem: determining what happens when an AI-assisted decision results in civilian harm. The Defense Department established its Civilian Harm Mitigation and Response Action Plan in 2022, including a Civilian Protection Center of Excellence intended to serve as a hub for analysis and training. Federal law requires the Pentagon to operate the center. But a Defense Department inspector general review released in May assessed the department’s implementation of the civilian-harm framework and found problems including the loss or reassignment of personnel, the end of funding for a civilian-harm data-management platform and the failure of a senior steering committee to continue meeting. That matters in the case of AI because, as Klasing noted, the military currently has limited ability to determine whether AI may contribute to improper targeting of civilians. On the first day of the U.S.-Iran war, a Tomahawk cruise missile struck Shajareh Tayyebeh elementary school in Minab, southern Iran. At least 168 people were killed — more than 100 of them under the age of 12, according to UN and Iranian officials. The school building sat fewer than 100 yards from a long-time Islamic Revolutionary Guard Corps naval installation and was previously located within the IRGC compound perimeter until a wall appeared between 2013 and 2016, according to an analysis of satellite imagery by Amnesty International . By the time the U.S. and Israel launched their first strikes on Feb. 28, the school had been established several years prior. It was active on social media and had its own website, a Reuters investigation found. More than 120 House Democrats sent a letter to the Pentagon on March 12 , demanding clarity on whether artificial intelligence, “including the use of the Maven Smart System, [was] used to identify the Shajareh Tayyebeh school as a target.” U.S. military investigators in the wake of the incident stated that the strike was likely carried out by U.S. forces. The Pentagon, however, has still not released its investigative findings. Graves are prepared for victims following a strike on a school in Minab, Iran, March 2, 2026. (Iranian Foreign Media Department/WANA/Reuters) Klasing proposed adding information about AI involvement to the Pentagon’s annual civilian-casualty reports required under Section 1057 of the National Defense Authorization Act. The existing reporting requirement calls for information about civilian casualty mitigation efforts and investigations, but does not specifically require the department to identify whether AI contributed to an incident. Steve Feldstein, a senior fellow at the Carnegie Endowment for International Peace, said the Pentagon should collect data from military operations and conduct after-action reviews to determine whether AI-assisted systems accurately identified intended targets and whether errors contributed to civilian casualties. “A bigger question is to what extent is the Pentagon collecting data and verifying the target accuracy of all these 1000s of strikes?” Feldstein said. Feldstein also cautioned against treating AI itself as the source of every potential problem. AI can be used to help verify intelligence, detect changes in imagery and prioritize defensive responses to threats such as drones and ballistic missiles. But if a human-influenced system is built around assumptions that certain demographic traits make someone a lawful target, Mysyshyn said, AI would not correct that underlying premise. Feldstein similarly pointed to the rules humans establish before an AI system is used. If commanders determine that a particular level of civilian harm is acceptable in pursuit of a military objective, he said, the machine is operating within a human-defined framework. The challenge is particularly acute when systems operate faster than people can meaningfully assess recommendations. The commission opened Wednesday’s hearing with an example from Iraq. In 2004, Army squad leader Nick Ellison encountered two young men firing a machine gun from a car during a census patrol in Kirkuk. Ellison made eye contact with one of the men, saw panic and ordered his soldiers to hold fire. The men turned out to be brothers of a newly married groom, and the gunfire was celebratory. Mysyshyn said testing should examine bias, reliability, civilian protection, realistic time pressure, whether operators can interrupt systems and whether decisions can be traced throughout an AI system’s lifecycle. Chapa said some AI systems may be difficult to audit after the fact, while Deborah Brown of Human Rights Watch said information about military AI use has often emerged through investigative reporting and whistleblowers rather than government disclosures. The growing challenge, according to witnesses, is no longer making a machine pull a trigger, but whether the human who approves the trigger pull has enough time, information and authority to make a meaningful choice before disaster. Military Times reporter Katie Livingstone contributed to this report. About Natalie Oliverio Natalie Oliverio is an independent journalist and Navy veteran who covers military and veterans’ issues. Drawing on her experience as a talent executive and mentor, she writes about the policies, people and programs shaping the military community. Share: In Other News Coasties’ photos used on stamps honoring Coast Guard Academy’s 150th The U.S. Postal Service is launching a new Forever stamp this week to commemorate the 150th anniversary of the U.S. Coast Guard Academy. AAFES boss leaves legacy of benefits for more veterans and stronger perks for all Tom Shull, who retired earlier this summer, was the longest-serving director in the military exchange service&#x27;s 131-year history. Trump’s new commission will target quality of life for military spouses The new President&#x27;s Military Spouse Commission, chaired by Jennifer Hegseth, is tasked with addressing persistent problems for military spouses. ‘Good Samaritans’ beware: Scammers ramp up targeting of troops’ goodwill The father of a sailor is out to warn others in the military community about a “Good Samaritan” scam that cost his son thousands of dollars. Program offering free food to moving military families expands to four more states Military families relocating to four more areas can sign up for $125 worth of groceries and essentials. Facebook page Twitter feed RSS feed Military Times © 2026 Terms of Use Privacy Policy Terms of Service Get Us Subscribe Opens in new window Newsletters Opens in new window RSS Feeds Opens in new window Shop Merch Opens in new window Contact Us Advertise General Contacts, Subscription Services Editorial Staff About Us About Us Careers Opens in new window Jobs for Veterans Opens in new window"
+          }
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "This is great! I've gathered the latest AI news related to the US military. The web search found several relevant articles, and I was able to fetch detailed content from two of them:\n\n1. **MIT Technology Review** - \"The new war room: 10 Things That Matter in AI Right Now\" (April 21, 2026)\n2. **Military Times** - \"AI military targeting may move faster than humans can authenticate, critics warn\" (September 16, 2026)\n\nKey themes from the latest news:\n\n- **AI Advisory Systems**: US and other militaries are moving from automated analysis to conversational AI that gives commanders advice (like Claude, which is so integrated that the Pentagon says it needs 6 months to remove)\n\n- **Speed vs. Human Oversight**: A major concern is that AI can compress decision times from hours to minutes, making human approval meaningful difficult\n\n- **Recent Developments**:\n  - Pentagon agreements with 8 AI companies (SpaceX, OpenAI, Google, Nvidia, Microsoft, Oracle, Amazon, Reflection)\n  - New GenAI.mil platform launching\n  - Ukraine using AI to compress decisions\n  - Iran conflict with AI-enabled targeting\n\n- **Accountability Issues**:\n  - Civilian harm incidents (like the Shajareh Tayyebeh school strike in Iran)\n  - Questions about whether humans have meaningful control when AI is faster\n  - Need for better data collection and AI education in the military\n\nWould you like me to dive deeper into any particular aspect of this AI-military news?"
+        }
+      ]
+    }
+  ]
+}

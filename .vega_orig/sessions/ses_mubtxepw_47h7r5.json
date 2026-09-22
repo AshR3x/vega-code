@@ -1,0 +1,23 @@
+{
+  "id": "ses_mubtxepw_47h7r5",
+  "createdAt": 1790030475716,
+  "messages": [
+    {
+      "role": "user",
+      "content": "reply with exactly the words: hello from ollama"
+    },
+    {
+      "role": "assistant",
+      "content": [
+        {
+          "type": "reasoning",
+          "text": "The user wants me to reply with exactly the words \"hello from ollama\". This is a simple text response, so I don't need to use any tools.\n"
+        },
+        {
+          "type": "text",
+          "text": "hello from ollama"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1096 @@
+<path>F:\Coding\AI Code\css\style.css</path>
+<type>file</type>
+<content>
+1: /* ========================================
+2:    Bean & Brew - Premium Coffee Shop
+3:    CSS Stylesheet
+4:    ======================================== */
+5: 
+6: /* Reset & Base Styles */
+7: * {
+8:     margin: 0;
+9:     padding: 0;
+10:     box-sizing: border-box;
+11: }
+12: 
+13: :root {
+14:     /* Colors */
+15:     --primary-color: #6F4E37;
+16:     --secondary-color: #C4915B;
+17:     --accent-color: #E8C6A3;
+18:     --dark-color: #2C241F;
+19:     --light-color: #FDFBF7;
+20:     --white: #ffffff;
+21:     --gray-100: #f5f5f5;
+22:     --gray-300: #e0e0e0;
+23:     --gray-700: #757575;
+24:     --gray-900: #212121;
+25:     
+26:     /* Spacing */
+27:     --spacing-xs: 0.5rem;
+28:     --spacing-sm: 1rem;
+29:     --spacing-md: 2rem;
+30:     --spacing-lg: 4rem;
+31:     --spacing-xl: 6rem;
+32:     
+33:     /* Typography */
+34:     --font-heading: 'Playfair Display', serif;
+35:     --font-body: 'Poppins', sans-serif;
+36:     
+37:     /* Transitions */
+38:     --transition-fast: 0.3s ease;
+39:     --transition-normal: 0.5s ease;
+40: }
+41: 
+42: html {
+43:     font-size: 16px;
+44:     scroll-behavior: smooth;
+45: }
+46: 
+47: body {
+48:     font-family: var(--font-body);
+49:     font-weight: 400;
+50:     font-size: 1rem;
+51:     line-height: 1.7;
+52:     color: var(--dark-color);
+53:     background-color: var(--light-color);
+54: }
+55: 
+56: h1, h2, h3, h4, h5, h6 {
+57:     font-family: var(--font-heading);
+58:     font-weight: 700;
+59:     line-height: 1.3;
+60:     color: var(--dark-color);
+61: }
+62: 
+63: a {
+64:     text-decoration: none;
+65:     color: var(--primary-color);
+66:     transition: var(--transition-fast);
+67: }
+68: 
+69: a:hover {
+70:     color: var(--secondary-color);
+71: }
+72: 
+73: img {
+74:     max-width: 100%;
+75:     height: auto;
+76: }
+77: 
+78: .container {
+79:     max-width: 1200px;
+80:     margin: 0 auto;
+81:     padding: 0 var(--spacing-md);
+82: }
+83: 
+84: /* ========================================
+85:    Utility Classes
+86:    ======================================== */
+87: 
+88: .text-center {
+89:     text-align: center;
+90: }
+91: 
+92: .lead {
+93:     font-size: 1.15rem;
+94:     color: var(--gray-700);
+95:     margin-bottom: var(--spacing-md);
+96: }
+97: 
+98: /* Buttons */
+99: .btn {
+100:     display: inline-block;
+101:     padding: 1rem 2rem;
+102:     font-size: 1rem;
+103:     font-weight: 500;
+104:     font-family: var(--font-body);
+105:     text-transform: uppercase;
+106:     letter-spacing: 1px;
+107:     border: 2px solid transparent;
+108:     cursor: pointer;
+109:     transition: var(--transition-fast);
+110: }
+111: 
+112: .btn-primary {
+113:     background-color: var(--primary-color);
+114:     color: var(--white);
+115:     border-color: var(--primary-color);
+116: }
+117: 
+118: .btn-primary:hover {
+119:     background-color: var(--dark-color);
+120:     border-color: var(--dark-color);
+121:     color: var(--white);
+122: }
+123: 
+124: .btn-secondary {
+125:     background-color: transparent;
+126:     color: var(--white);
+127:     border-color: var(--white);
+128: }
+129: 
+130: .btn-secondary:hover {
+131:     background-color: var(--white);
+132:     color: var(--primary-color);
+133: }
+134: 
+135: /* ========================================
+136:    Navigation
+137:    ======================================== */
+138: 
+139: .navbar {
+140:     position: fixed;
+141:     top: 0;
+142:     left: 0;
+143:     right: 0;
+144:     padding: 1.25rem var(--spacing-sm);
+145:     background-color: transparent;
+146:     z-index: 1000;
+147:     transition: var(--transition-fast);
+148: }
+149: 
+150: .navbar.scrolled {
+151:     background-color: var(--dark-color);
+152:     padding: 1rem var(--spacing-sm);
+153:     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+154: }
+155: 
+156: .navbar .container {
+157:     display: flex;
+158:     justify-content: space-between;
+159:     align-items: center;
+160: }
+161: 
+162: .nav-brand {
+163:     display: flex;
+164:     align-items: center;
+165:     gap: var(--spacing-xs);
+166:     font-family: var(--font-heading);
+167:     font-size: 1.5rem;
+168:     font-weight: 700;
+169:     color: var(--white);
+170: }
+171: 
+172: .nav-brand i {
+173:     color: var(--secondary-color);
+174: }
+175: 
+176: .nav-menu {
+177:     display: flex;
+178:     list-style: none;
+179:     gap: var(--spacing-md);
+180: }
+181: 
+182: .nav-menu a {
+183:     color: var(--white);
+184:     font-weight: 500;
+185:     font-size: 0.9rem;
+186:     text-transform: uppercase;
+187:     letter-spacing: 1px;
+188:     padding: var(--spacing-xs) 0;
+189:     position: relative;
+190: }
+191: 
+192: .nav-menu a::after {
+193:     content: '';
+194:     position: absolute;
+195:     bottom: 0;
+196:     left: 0;
+197:     width: 0;
+198:     height: 2px;
+199:     background-color: var(--secondary-color);
+200:     transition: var(--transition-fast);
+201: }
+202: 
+203: .nav-menu a:hover::after,
+204: .nav-menu a.active::after {
+205:     width: 100%;
+206: }
+207: 
+208: .nav-toggle {
+209:     display: none;
+210:     color: var(--white);
+211:     font-size: 1.5rem;
+212:     cursor: pointer;
+213: }
+214: 
+215: /* ========================================
+216:    Hero Section
+217:    ======================================== */
+218: 
+219: .hero {
+220:     position: relative;
+221:     height: 100vh;
+222:     display: flex;
+223:     align-items: center;
+224:     justify-content: center;
+225:     background: linear-gradient(rgba(44, 36, 31, 0.6), rgba(44, 36, 31, 0.6)),
+226:                 url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=1920') center/cover;
+227:     min-height: 500px;
+228: }
+229: 
+230: .hero-overlay {
+231:     position: absolute;
+232:     top: 0;
+233:     left: 0;
+234:     right: 0;
+235:     bottom: 0;
+236:     background-color: rgba(0, 0, 0, 0.4);
+237: }
+238: 
+239: .hero .container {
+240:     position: relative;
+241: }
+242: 
+243: .hero-content {
+244:     text-align: center;
+245:     color: var(--white);
+246:     max-width: 800px;
+247: }
+248: 
+249: .hero-subtitle {
+250:     font-size: 1rem;
+251:     text-transform: uppercase;
+252:     letter-spacing: 3px;
+253:     margin-bottom: var(--spacing-sm);
+254: }
+255: 
+256: .hero-title {
+257:     font-size: clamp(2.5rem, 5vw, 4rem);
+258:     margin-bottom: var(--spacing-sm);
+259: }
+260: 
+261: .hero-title .highlight {
+262:     color: var(--secondary-color);
+263: }
+264: 
+265: .hero-description {
+266:     font-size: 1.2rem;
+267:     margin-bottom: var(--spacing-lg);
+268: }
+269: 
+270: .hero-description p {
+271:     margin: 0;
+272: }
+273: 
+274: /* ========================================
+275:    Features Section
+276:    ======================================== */
+277: 
+278: .features {
+279:     padding: var(--spacing-lg) 0;
+280:     background-color: var(--light-color);
+281: }
+282: 
+283: .features-grid {
+284:     display: grid;
+285:     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+286:     gap: var(--spacing-md);
+287: }
+288: 
+289: .feature-card {
+290:     background-color: var(--white);
+291:     padding: var(--spacing-lg);
+292:     text-align: center;
+293:     border-radius: 8px;
+294:     box-shadow: 0 5px 30px rgba(0, 0, 0, 0.08);
+295:     transition: var(--transition-fast);
+296: }
+297: 
+298: .feature-card:hover {
+299:     transform: translateY(-5px);
+300:     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+301: }
+302: 
+303: .feature-icon {
+304:     width: 80px;
+305:     height: 80px;
+306:     margin: 0 auto var(--spacing-md);
+307:     display: flex;
+308:     align-items: center;
+309:     justify-content: center;
+310:     background-color: rgba(204, 145, 91, 0.1);
+311:     color: var(--primary-color);
+312:     font-size: 2rem;
+313:     border-radius: 50%;
+314:     transition: var(--transition-fast);
+315: }
+316: 
+317: .feature-card:hover .feature-icon {
+318:     background-color: var(--primary-color);
+319:     color: var(--white);
+320:     transform: scale(1.1);
+321: }
+322: 
+323: .feature-card h3 {
+324:     font-size: 1.4rem;
+325:     margin-bottom: var(--spacing-sm);
+326: }
+327: 
+328: .feature-card p {
+329:     font-size: 1rem;
+330:     color: var(--gray-700);
+331: }
+332: 
+333: /* ========================================
+334:    About Section
+335:    ======================================== */
+336: 
+337: .about {
+338:     padding: var(--spacing-xl) 0;
+339:     background-color: var(--primary-color);
+340:     color: var(--white);
+341: }
+342: 
+343: .about .section-title {
+344:     color: var(--white);
+345:     text-align: center;
+346:     margin-bottom: var(--spacing-sm);
+347: }
+348: 
+349: .about-content {
+350:     display: flex;
+351:     align-items: center;
+352:     gap: var(--spacing-xl);
+353: }
+354: 
+355: .about-text {
+356:     flex: 1;
+357:     max-width: 600px;
+358: }
+359: 
+360: .about-text h2 {
+361:     color: var(--white);
+362:     font-size: 2.5rem;
+363:     text-align: center;
+364: }
+365: 
+366: .about-text .lead {
+367:     color: rgba(255, 255, 255, 0.9);
+368:     text-align: center;
+369:     font-size: 1.2rem;
+370:     line-height: 1.8;
+371: }
+372: 
+373: .about-text p {
+374:     color: rgba(255, 255, 255, 0.9);
+375:     margin-bottom: 1rem;
+376:     font-size: 1.05rem;
+377: }
+378: 
+379: .about-image {
+380:     flex: 1;
+381:     min-width: 300px;
+382:     display: flex;
+383:     justify-content: center;
+384:     align-items: center;
+385: }
+386: 
+387: .img-wrapper {
+388:     width: 100%;
+389:     max-width: 400px;
+390:     height: 400px;
+391:     background: linear-gradient(rgba(204, 145, 91, 0.3), rgba(216, 184, 141, 0.3)),
+392:                 url('https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600') center/cover;
+393:     border-radius: 10px;
+394:     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+395:     display: flex;
+396:     align-items: center;
+397:     justify-content: center;
+398:     transition: var(--transition-normal);
+399: }
+400: 
+401: .img-wrapper i {
+402:     font-size: 8rem;
+403:     color: var(--white);
+404:     text-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+405: }
+406: 
+407: .img-wrapper:hover {
+408:     transform: scale(1.02);
+409: }
+410: 
+411: .about-stats {
+412:     display: flex;
+413:     justify-content: center;
+414:     gap: var(--spacing-lg);
+415:     margin-top: var(--spacing-md);
+416:     flex-wrap: wrap;
+417: }
+418: 
+419: .stat-item {
+420:     text-align: center;
+421: }
+422: 
+423: .stat-number {
+424:     display: block;
+425:     font-size: 2.5rem;
+426:     font-weight: 700;
+427:     font-family: var(--font-heading);
+428:     color: var(--secondary-color);
+429: }
+430: 
+431: .stat-label {
+432:     font-size: 0.9rem;
+433:     text-transform: uppercase;
+434:     letter-spacing: 1px;
+435:     margin-top: var(--spacing-xs);
+436:     color: rgba(255, 255, 255, 0.8);
+437: }
+438: 
+439: /* ========================================
+440:    Menu Section
+441:    ======================================== */
+442: 
+443: .menu {
+444:     padding: var(--spacing-xl) 0;
+445:     background-color: var(--light-color);
+446: }
+447: 
+448: .menu .section-title {
+449:     font-size: 2.5rem;
+450:     text-align: center;
+451:     margin-bottom: var(--spacing-xs);
+452: }
+453: 
+454: .section-subtitle {
+455:     font-size: 1.1rem;
+456:     color: var(--gray-700);
+457:     text-align: center;
+458:     margin-bottom: var(--spacing-lg);
+459: }
+460: 
+461: /* Menu Tabs */
+462: .menu-tabs {
+463:     display: flex;
+464:     justify-content: center;
+465:     gap: var(--spacing-sm);
+466:     margin-bottom: var(--spacing-lg);
+467:     flex-wrap: wrap;
+468: }
+469: 
+470: .tab-btn {
+471:     padding: 0.75rem 1.5rem;
+472:     font-size: 0.95rem;
+473:     font-weight: 500;
+474:     background-color: transparent;
+475:     border: 2px solid var(--primary-color);
+476:     color: var(--dark-color);
+477:     cursor: pointer;
+478:     transition: var(--transition-fast);
+479:     text-transform: capitalize;
+480:     border-radius: 30px;
+481: }
+482: 
+483: .tab-btn:hover,
+484: .tab-btn.active {
+485:     background-color: var(--primary-color);
+486:     color: var(--white);
+487: }
+488: 
+489: /* Menu Content */
+490: .menu-content {
+491:     max-width: 900px;
+492:     margin: 0 auto;
+493: }
+494: 
+495: .tab-content {
+496:     display: none;
+497: }
+498: 
+499: .tab-content.active {
+500:     display: block;
+501:     animation: fadeIn 0.3s ease;
+502: }
+503: 
+504: @keyframes fadeIn {
+505:     from {
+506:         opacity: 0;
+507:         transform: translateY(10px);
+508:     }
+509:     to {
+510:         opacity: 1;
+511:         transform: translateY(0);
+512:     }
+513: }
+514: 
+515: /* Menu Items Grid */
+516: .menu-grid {
+517:     display: grid;
+518:     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+519:     gap: var(--spacing-md);
+520: }
+521: 
+522: .menu-item {
+523:     background-color: var(--white);
+524:     border-radius: 8px;
+525:     padding: var(--spacing-md);
+526:     box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+527:     transition: var(--transition-fast);
+528: }
+529: 
+530: .menu-item:hover {
+531:     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+532: }
+533: 
+534: .menu-header {
+535:     display: flex;
+536:     justify-content: space-between;
+537:     align-items: flex-start;
+538:     margin-bottom: var(--spacing-sm);
+539: }
+540: 
+541: .menu-header h3 {
+542:     font-size: 1.2rem;
+543:     margin-bottom: 0.5rem;
+544:     flex: 1;
+545: }
+546: 
+547: .menu-price {
+548:     font-size: 1.1rem;
+549:     font-weight: 700;
+550:     color: var(--primary-color);
+551:     margin-bottom: 0.5rem;
+552: }
+553: 
+554: .menu-description {
+555:     font-size: 0.9rem;
+556:     color: var(--gray-700);
+557:     line-height: 1.5;
+558: }
+559: 
+560: .menu-tags {
+561:     margin-top: var(--spacing-sm);
+562:     display: flex;
+563:     gap: var(--spacing-xs);
+564:     flex-wrap: wrap;
+565: }
+566: 
+567: .tag {
+568:     padding: 0.25rem 0.75rem;
+569:     font-size: 0.75rem;
+570:     background-color: var(--gray-100);
+571:     color: var(--gray-700);
+572:     border-radius: 15px;
+573: }
+574: 
+575: .tag.vegan {
+576:     background-color: #e8f5e9;
+577:     color: #2e7d32;
+578: }
+579: 
+580: .tag.gluten-free {
+581:     background-color: #fff3e0;
+582:     color: #ef6c00;
+583: }
+584: 
+585: .tag.caffeine-free {
+586:     background-color: #e3f2fd;
+587:     color: #1565c0;
+588: }
+589: 
+590: /* Menu Footer */
+591: .menu-footer {
+592:     text-align: center;
+593:     padding: var(--spacing-lg) 0;
+594: }
+595: 
+596: /* ========================================
+597:    Gallery Section
+598:    ======================================== */
+599: 
+600: .gallery {
+601:     padding: var(--spacing-xl) 0;
+602:     background-color: var(--white);
+603: }
+604: 
+605: .gallery-grid {
+606:     display: grid;
+607:     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+608:     gap: var(--spacing-sm);
+609: }
+610: 
+611: .gallery-item {
+612:     position: relative;
+613:     aspect-ratio: 1;
+614:     overflow: hidden;
+615:     cursor: pointer;
+616: }
+617: 
+618: .gallery-item img,
+619: .gallery-item::before {
+620:     width: 100%;
+621:     height: 100%;
+622:     object-fit: cover;
+623: }
+624: 
+625: .gallery-item::before {
+626:     content: '';
+627:     position: absolute;
+628:     top: 0;
+629:     left: 0;
+630:     right: 0;
+631:     bottom: 0;
+632:     background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+633: }
+634: 
+635: .gallery-overlay {
+636:     position: absolute;
+637:     bottom: 0;
+638:     left: 0;
+639:     right: 0;
+640:     padding: var(--spacing-sm);
+641:     color: var(--white);
+642:     font-size: 0.85rem;
+643:     text-align: center;
+644:     opacity: 0;
+645:     transition: var(--transition-fast);
+646: }
+647: 
+648: .gallery-item:hover .gallery-overlay {
+649:     opacity: 1;
+650: }
+651: 
+652: .gallery-item:hover img,
+653: .gallery-item:hover::before {
+654:     transform: scale(1.1);
+655: }
+656: 
+657: /* ========================================
+658:    Location Section
+659:    ======================================== */
+660: 
+661: .location {
+662:     padding: var(--spacing-xl) 0;
+663:     background-color: var(--primary-color);
+664:     color: var(--white);
+665: }
+666: 
+667: .location .container {
+668:     display: flex;
+669:     gap: var(--spacing-lg);
+670:     align-items: stretch;
+671: }
+672: 
+673: .location-content {
+674:     flex: 1;
+675:     max-width: 600px;
+676: }
+677: 
+678: .location .section-title {
+679:     color: var(--white);
+680:     text-align: left;
+681:     margin-bottom: var(--spacing-md);
+682: }
+683: 
+684: .info-item {
+685:     display: flex;
+686:     gap: var(--spacing-sm);
+687:     margin-bottom: var(--spacing-md);
+688: }
+689: 
+690: .info-item i {
+691:     font-size: 1.2rem;
+692:     color: var(--secondary-color);
+693:     margin-top: 0.25rem;
+694:     flex-shrink: 0;
+695: }
+696: 
+697: .info-item h4 {
+698:     color: var(--white);
+699:     font-size: 1rem;
+700:     margin-bottom: 0.25rem;
+701: }
+702: 
+703: .info-item p {
+704:     color: rgba(255, 255, 255, 0.85);
+705:     font-size: 0.95rem;
+706: }
+707: 
+708: .map-placeholder {
+709:     flex: 1;
+710:     min-height: 400px;
+711:     background-color: rgba(255, 255, 255, 0.1);
+712:     border: 2px dashed rgba(255, 255, 255, 0.3);
+713:     border-radius: 8px;
+714:     display: flex;
+715:     flex-direction: column;
+716:     align-items: center;
+717:     justify-content: center;
+718:     color: rgba(255, 255, 255, 0.6);
+719: }
+720: 
+721: .map-placeholder i {
+722:     font-size: 3rem;
+723:     margin-bottom: var(--spacing-sm);
+724: }
+725: 
+726: .map-placeholder span {
+727:     font-size: 1.1rem;
+728: }
+729: 
+730: /* ========================================
+731:    Newsletter Section
+732:    ======================================== */
+733: 
+734: .newsletter {
+735:     padding: var(--spacing-lg) 0;
+736:     background-color: var(--secondary-color);
+737:     position: relative;
+738:     overflow: hidden;
+739: }
+740: 
+741: .newsletter::before {
+742:     content: '';
+743:     position: absolute;
+744:     top: -50%;
+745:     left: -50%;
+746:     width: 200%;
+747:     height: 200%;
+748:     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+749:     background-size: 30px 30px;
+750:     animation: gridMove 60s linear infinite;
+751: }
+752: 
+753: .newsletter-content {
+754:     position: relative;
+755:     text-align: center;
+756:     max-width: 600px;
+757:     margin: 0 auto;
+758: }
+759: 
+760: .newsletter h3 {
+761:     color: var(--white);
+762:     font-size: 2rem;
+763:     margin-bottom: var(--spacing-sm);
+764: }
+765: 
+766: .newsletter p {
+767:     color: rgba(255, 255, 255, 0.9);
+768:     font-size: 1.1rem;
+769:     margin-bottom: var(--spacing-md);
+770: }
+771: 
+772: .newsletter-form {
+773:     display: flex;
+774:     gap: var(--spacing-sm);
+775:     justify-content: center;
+776:     max-width: 450px;
+777:     margin: 0 auto;
+778: }
+779: 
+780: .newsletter-form input {
+781:     flex: 1;
+782:     padding: 1rem 1.25rem;
+783:     font-size: 1rem;
+784:     border: none;
+785:     border-radius: 30px;
+786:     outline: none;
+787:     width: 100%;
+788: }
+789: 
+790: .newsletter-form input::placeholder {
+791:     color: var(--gray-300);
+792: }
+793: 
+794: .newsletter-form button {
+795:     white-space: nowrap;
+796:     width: auto;
+797:     padding: 1rem 2rem;
+798: }
+799: 
+800: @keyframes gridMove {
+801:     from {
+802:         transform: translate(0, 0);
+803:     }
+804:     to {
+805:         transform: translate(30px, 30px);
+806:     }
+807: }
+808: 
+809: /* ========================================
+810:    Footer
+811:    ======================================== */
+812: 
+813: .footer {
+814:     background-color: var(--dark-color);
+815:     color: rgba(255, 255, 255, 0.8);
+816:     padding: var(--spacing-xl) 0 var(--spacing-md);
+817: }
+818: 
+819: .footer-content {
+820:     display: grid;
+821:     grid-template-columns: 1.5fr 1fr;
+822:     gap: var(--spacing-xl);
+823:     margin-bottom: var(--spacing-lg);
+824: }
+825: 
+826: .footer-brand {
+827:     display: flex;
+828:     flex-direction: column;
+829:     gap: var(--spacing-sm);
+830: }
+831: 
+832: .footer-logo {
+833:     display: flex;
+834:     align-items: center;
+835:     gap: var(--spacing-xs);
+836:     font-family: var(--font-heading);
+837:     font-size: 1.5rem;
+838:     color: var(--white);
+839: }
+840: 
+841: .footer-logo i {
+842:     color: var(--secondary-color);
+843: }
+844: 
+845: .footer-brand p {
+846:     font-size: 0.95rem;
+847:     color: rgba(255, 255, 255, 0.7);
+848: }
+849: 
+850: .social-links {
+851:     display: flex;
+852:     gap: var(--spacing-sm);
+853:     margin-top: var(--spacing-sm);
+854: }
+855: 
+856: .social-link {
+857:     width: 40px;
+858:     height: 40px;
+859:     display: flex;
+860:     align-items: center;
+861:     justify-content: center;
+862:     background-color: rgba(255, 255, 255, 0.1);
+863:     color: var(--white);
+864:     border-radius: 50%;
+865:     transition: var(--transition-fast);
+866: }
+867: 
+868: .social-link:hover {
+869:     background-color: var(--secondary-color);
+870: }
+871: 
+872: .footer-column h4 {
+873:     color: var(--white);
+874:     font-size: 1rem;
+875:     margin-bottom: var(--spacing-sm);
+876: }
+877: 
+878: .footer-column ul {
+879:     list-style: none;
+880: }
+881: 
+882: .footer-column ul li {
+883:     margin-bottom: 0.75rem;
+884: }
+885: 
+886: .footer-column ul li a {
+887:     color: rgba(255, 255, 255, 0.7);
+888:     font-size: 0.95rem;
+889:     transition: var(--transition-fast);
+890: }
+891: 
+892: .footer-column ul li a:hover {
+893:     color: var(--secondary-color);
+894:     padding-left: 5px;
+895: }
+896: 
+897: .footer-bottom {
+898:     padding-top: var(--spacing-md);
+899:     border-top: 1px solid rgba(255, 255, 255, 0.1);
+900:     text-align: center;
+901: }
+902: 
+903: .footer-bottom p {
+904:     font-size: 0.9rem;
+905: }
+906: 
+907: /* ========================================
+908:    Responsive Design
+909:    ======================================== */
+910: 
+911: @media (max-width: 992px) {
+912:     .about-content {
+913:         flex-direction: column;
+914:         text-align: center;
+915:     }
+916:     
+917:     .about-text {
+918:         max-width: 100%;
+919:     }
+920:     
+921:     .about-text .lead {
+922:         text-align: left;
+923:     }
+924:     
+925:     .about-stats {
+926:         justify-content: flex-start;
+927:     }
+928:     
+929:     .location-content {
+930:         max-width: 100%;
+931:     }
+932:     
+933:     .location-content,
+934:     .map-placeholder {
+935:         flex: none;
+936:         width: 100%;
+937:     }
+938:     
+939:     .newsletter-form {
+940:         flex-direction: column;
+941:     }
+942:     
+943:     .newsletter-form input {
+944:         width: 100%;
+945:     }
+946:     
+947:     .footer-content {
+948:         grid-template-columns: 1fr;
+949:         text-align: center;
+950:     }
+951:     
+952:     .footer-brand {
+953:         align-items: center;
+954:     }
+955:     
+956:     .social-links {
+957:         justify-content: center;
+958:     }
+959: }
+960: 
+961: @media (max-width: 768px) {
+962:     :root {
+963:         --spacing-lg: 3rem;
+964:         --spacing-xl: 4rem;
+965:     }
+966:     
+967:     .nav-menu {
+968:         position: fixed;
+969:         top: 60px;
+970:         left: -100%;
+971:         width: 100%;
+972:         flex-direction: column;
+973:         background-color: var(--dark-color);
+974:         padding: var(--spacing-md);
+975:         gap: var(--spacing-sm);
+976:         transition: var(--transition-normal);
+977:     }
+978:     
+979:     .nav-menu.active {
+980:         left: 0;
+981:     }
+982:     
+983:     .nav-toggle {
+984:         display: block;
+985:     }
+986:     
+987:     .hero {
+988:         min-height: 60vh;
+989:     }
+990:     
+991:     .hero-title {
+992:         font-size: 2rem;
+993:     }
+994:     
+995:     .features-grid {
+996:         grid-template-columns: 1fr;
+997:     }
+998:     
+999:     .menu-tabs {
+1000:         overflow-x: auto;
+1001:         flex-wrap: nowrap;
+1002:         justify-content: flex-start;
+1003:         padding-bottom: var(--spacing-sm);
+1004:     }
+1005:     
+1006:     .tab-btn {
+1007:         white-space: nowrap;
+1008:     }
+1009:     
+1010:     .menu-grid {
+1011:         grid-template-columns: 1fr;
+1012:     }
+1013:     
+1014:     .gallery {
+1015:         text-align: center;
+1016:     }
+1017:     
+1018:     .gallery-grid {
+1019:         grid-template-columns: repeat(2, 1fr);
+1020:     }
+1021: }
+1022: 
+1023: @media (max-width: 480px) {
+1024:     .hero {
+1025:         min-height: 50vh;
+1026:         text-align: center;
+1027:     }
+1028:     
+1029:     .hero-title {
+1030:         font-size: 1.75rem;
+1031:     }
+1032:     
+1033:     .hero-description {
+1034:         font-size: 1.1rem;
+1035:     }
+1036:     
+1037:     .about-stats {
+1038:         flex-direction: column;
+1039:         gap: var(--spacing-sm);
+1040:     }
+1041:     
+1042:     .img-wrapper {
+1043:         height: 300px;
+1044:     }
+1045:     
+1046:     .img-wrapper i {
+1047:         font-size: 6rem;
+1048:     }
+1049:     
+1050:     .gallery-grid {
+1051:         grid-template-columns: 1fr;
+1052:     }
+1053:     
+1054:     .nav-brand {
+1055:         font-size: 1.25rem;
+1056:     }
+1057:     
+1058:     .section-title {
+1059:         font-size: 1.8rem;
+1060:     }
+1061: }
+1062: 
+1063: /* ========================================
+1064:    Animations
+1065:    ======================================== */
+1066: 
+1067: @keyframes fadeInUp {
+1068:     from {
+1069:         opacity: 0;
+1070:         transform: translateY(30px);
+1071:     }
+1072:     to {
+1073:         opacity: 1;
+1074:         transform: translateY(0);
+1075:     }
+1076: }
+1077: 
+1078: .animate-on-scroll {
+1079:     opacity: 0;
+1080: }
+1081: 
+1082: .animate-on-scroll.animate {
+1083:     animation: fadeInUp 0.6s ease forwards;
+1084: }
+1085: 
+1086: /* Smooth scroll for anchor links */
+1087: a[href^="#"] {
+1088:     scroll-margin-top: 100px;
+1089: }
+1090: 
+
+(End of file - total 1090 lines)
+</content>
