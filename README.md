@@ -1,8 +1,8 @@
 # vega-code
 
-A small, single-package clone of the core ideas behind [opencode](https://github.com/sst/opencode) — an agentic
-coding CLI built on Bun + the Vercel AI SDK. Built around the tool definitions, wildcard permission ruleset,
+An agentic coding CLI built on Bun + the Vercel AI SDK. Built around the tool definitions, wildcard permission ruleset,
 context compaction, and subagent architecture that make an agentic CLI actually usable.
+
 
 ## Screenshot
 
