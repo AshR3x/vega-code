@@ -6,8 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 vega-code is a small, single-package clone of the core mechanisms behind [opencode](https://github.com/sst/opencode)
 (an agentic coding CLI): tool-calling loop, wildcard permission system, context compaction, and subagents — built
-on Bun + TypeScript + the Vercel AI SDK, deliberately without opencode's Effect-TS/SQLite/HTTP-server scale.
-It is a readable, hackable REPL, not a drop-in opencode replacement.
+on Bun + TypeScript + the Vercel AI SDK, deliberately kept as a single package with none of the
+service-layer complexity.
+It is a readable, hackable REPL, not a drop-in replacement for a hosted product.
 
 ## Commands
 
@@ -46,7 +47,7 @@ rest of the session. `setAutoApprove(true)` (wired to the `/auto` command) widen
 honors explicit `deny` rules — it's not a full bypass.
 
 **Agents** (`src/agent.ts`): `AgentDef` has a `mode: "primary" | "subagent"` and a `tools` allowlist. `build`
-(full access) and `plan` (read-only, primary — opencode-style plan mode) are user-selectable via `/agent`,
+(full access) and `plan` (read-only, primary) are user-selectable via `/agent`,
 `/plan`, `/build`. `general` is `subagent`-only, used by the `task` tool. The `task` tool (`src/tool/task.ts`)
 spawns a nested `runAgentLoop` with a restricted agent; it `await import("@/loop")` dynamically specifically to
 break the `loop.ts` → `registry.ts` → `task.ts` → `loop.ts` circular import.

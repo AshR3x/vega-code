@@ -4,8 +4,8 @@ export interface AgentDef {
   mode: "primary" | "subagent"
   tools: string[]
   prompt?: string
-  // RGB, used for the prompt bar's left border — mirrors opencode's
-  // per-agent accent color (`local.agent.color(agent.name)`).
+  // RGB, used for the prompt bar's left border — a per-agent accent color
+  // so each agent is visually distinct in the status line.
   color: [number, number, number]
 }
 

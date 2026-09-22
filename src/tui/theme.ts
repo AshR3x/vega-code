@@ -22,14 +22,14 @@ export const palette = {
   purpleBright: [200, 170, 255] as const,
   purpleDim: [120, 95, 190] as const,
   // A darker "shadow" tone, used for the bevel effect on block-letter logos —
-  // opencode's real TUI blends toward its own rendered background color for
-  // this, which we can't do here (a plain ANSI CLI doesn't own/know the
+  // text blends toward its own rendered background color for this, which we
+  // can't do here (a plain ANSI CLI doesn't own/know the
   // terminal's actual background), so this approximates it by just going
   // darker instead, which reads fine on the dark terminal themes most people
   // code in but won't blend correctly on a light-background terminal.
   purpleShadow: [70, 55, 110] as const,
   // Accents
-  accent: [255, 158, 100] as const, // orange, for warnings/permission prompts (matches opencode's amber accent)
+  accent: [255, 158, 100] as const, // orange, for warnings/permission prompts (the amber accent)
   cyan: [94, 200, 255] as const, // user-message labels
   error: [255, 110, 110] as const,
   success: [130, 220, 160] as const,

@@ -73,13 +73,10 @@ function createConsoleAsk(): ConsoleAsk {
 
   // Double-tap Tab toggles between a collapsed "(thinking...)" indicator and
   // showing the model's full reasoning/thinking text live as it streams.
-  // Real opencode has the same concept (context/thinking.ts's "show"/"hide"
-  // mode) but binds no default key for it — config/keybind.ts:151 is
-  // literally `display_thinking: keybind("none", "Toggle thinking blocks
-  // visibility")` — so there's no existing gesture to match; this picks a
-  // concrete one since the feature needs one. Only wired up on a real TTY —
-  // piped/non-interactive stdin never emits keypress events, which is fine,
-  // there's no live toggling to do there anyway.
+  // There's no existing gesture to match, so this picks a concrete one since
+  // the feature needs one. Only wired up on a real TTY — piped/non-interactive
+  // stdin never emits keypress events, which is fine, there's no live
+  // toggling to do there anyway.
   let thinkingExpanded = false
   let lastTabAt = 0
   const DOUBLE_TAP_WINDOW_MS = 400
@@ -249,16 +246,13 @@ function statusLine(cfg: VegaConfig, agent: AgentDef, autoMode: boolean, session
   return `${agentLabel}  ${modelLabel}${autoLabel}`
 }
 
-// Real opencode renders this as a live keybinding hint
-// (`{agentShortcut()} agents`, `{paletteShortcut()} commands` —
-// prompt/index.tsx:1673-1680); we don't have a keybinding-config system, so
-// this is our slash-command equivalent of the same row. Confirmed from
-// source: it sits directly adjacent to the box's closing cap row, no gap
-// (prompt/index.tsx:1512-1513), and shares the box's left edge, not
-// independently centered (prompt/index.tsx:1513 has no border/left-bar).
+// Live keybinding hint row matching the box's left edge, directly adjacent
+// to the box's closing cap row (no gap), sharing the box's left edge rather
+// than being independently centered. There's no keybinding-config system, so
+// this shows the slash-command equivalents of the same row.
 function hintBar(sessionActive: boolean, terminalWidth: number): string {
-  // Kept terse on purpose (mirrors real opencode's equally terse row) — the
-  // full command list is one `/help` away, and this needs to fit within
+  // Kept terse on purpose — the full command list is one `/help` away, and
+  // this needs to fit within
   // promptBoxWidth() or it overflows the box's right edge same as the
   // status line does with a long model id.
   const text = "/help commands   /models models   /agent agents"
@@ -416,8 +410,8 @@ async function main() {
               assistantLine = false
             }
             // Collapsed mode: one static marker, no per-delta spam (this is
-            // a scrolling terminal, not a repaintable TUI — we can't animate
-            // a spinner in place across many deltas the way opencode does).
+            // a scrolling terminal, not a repaintable TUI — there's no way
+            // to animate a spinner in place across many deltas).
             // Expanded mode: the actual text streams in on reasoning-delta
             // below instead, so nothing to print yet.
             if (!consoleInput.isThinkingExpanded()) console.log(theme.gray("(thinking...)"))
@@ -491,12 +485,12 @@ async function main() {
     },
   }
 
-  // opencode's box isn't the same width for the whole app — it's fixed at
+  // The prompt box isn't the same width for the whole app — it's fixed at
   // 75 cols only on the pre-first-message home screen; once a session is
   // active it expands to fill nearly the full terminal width (see the width
-  // comment on promptBoxWidth() in tui/logo.ts). This mirrors that: the
-  // very first frame drawn (right after the splash) still uses the "home"
-  // width, then flips to "session" width for every frame after.
+  // comment on promptBoxWidth() in tui/logo.ts). The very first frame drawn
+  // (right after the splash) still uses the "home" width, then flips to
+  // "session" width for every frame after.
   let sessionActive = false
 
   while (true) {
@@ -514,8 +508,8 @@ async function main() {
     console.log(frame.bottom.join("\n"))
 
     const trimmed = line.trim()
-    // A bare Enter with nothing typed is a no-op in real opencode too — no
-    // route change, no session created. Must check this BEFORE flipping
+    // A bare Enter with nothing typed is a no-op — no session is created.
+    // Must check this BEFORE flipping
     // sessionActive/printing the footer below, or hitting Enter on an empty
     // home screen would permanently widen the box and print the footer with
     // nothing having actually happened.
@@ -528,8 +522,8 @@ async function main() {
       continue
     }
 
-    // opencode's footer (cwd/branch, MCP status, version) lives outside the
-    // centered home container, fixed at the screen bottom (home.tsx:90-92).
+    // The footer line (cwd/branch, MCP status, version) lives outside the
+    // centered home container, fixed at the screen bottom.
     // A scrolling terminal has no real "pin to bottom", so this prints it
     // once, right under the first real submission, rather than repeating it
     // every turn — at the same point the box itself transitions from home

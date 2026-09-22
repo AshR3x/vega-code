@@ -1,8 +1,12 @@
 # vega-code
 
 A small, single-package clone of the core ideas behind [opencode](https://github.com/sst/opencode) — an agentic
-coding CLI built on Bun + the Vercel AI SDK. Built after reading opencode's actual source (tool definitions,
-permission ruleset, compaction strategy, subagent architecture) rather than guessing.
+coding CLI built on Bun + the Vercel AI SDK. Built around the tool definitions, wildcard permission ruleset,
+context compaction, and subagent architecture that make an agentic CLI actually usable.
+
+## Screenshot
+
+![vega-code TUI](https://raw.githubusercontent.com/AshR3x/vega-code/master/screenshot.png)
 
 ## What's implemented
 
@@ -32,8 +36,8 @@ Slash commands in the REPL: `/exit`, `/clear`.
 
 ## What's deliberately left out (vs. real opencode)
 
-Real opencode is a large team's Effect-TS production codebase with SQLite-backed durable sessions, an HTTP/SSE
-server + separate TUI client, LSP integration, MCP servers, AST-based shell-command permission scanning, a
-plugin system, and a dozen provider integrations. This project keeps the *mechanisms* (permission evaluation,
-compaction, subagent isolation, tool truncation) but skips the infrastructure scale-out — it's meant as a
-readable, hackable starting point, not a drop-in replacement.
+A production-grade agentic CLI would be a large team's Effect-TS codebase with SQLite-backed durable sessions,
+an HTTP/SSE server plus a separate TUI client, LSP integration, MCP servers, AST-based shell-command permission
+scanning, a plugin system, and a dozen provider integrations. This project keeps the *mechanisms* (permission
+evaluation, compaction, subagent isolation, tool truncation) but skips the infrastructure scale-out — it's
+meant as a readable, hackable starting point, not a drop-in replacement.

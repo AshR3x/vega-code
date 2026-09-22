@@ -486,7 +486,7 @@ export function TuiApp(props: TuiAppProps) {
 
   // Each mode maps to an agent plus an approval posture: build/plan always
   // ask, auto approves permission prompts for the rest of the session
-  // (mirrors opencode's `--auto` flag).
+  // (the `--auto` equivalent).
   function applyMode(next: Mode): void {
     setMode(next)
     if (next === "plan") {
