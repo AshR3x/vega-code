@@ -28,6 +28,7 @@ except Exception as e:
 const Parameters = z.object({
   query: z.string().describe("The search query"),
   numResults: z.number().int().min(1).max(20).optional().describe("Number of results to return (default 10)"),
+  reason: z.string().describe("Brief, one-line explanation of why this search is needed, shown to the user in the approval prompt"),
 })
 
 interface SearchResult {
@@ -79,7 +80,7 @@ export const WebSearchTool = defineTool({
   description: "Searches the web via DuckDuckGo (ddgs) and returns titles, URLs, and snippets for the top results. Use this to find current information or URLs to fetch with webfetch.",
   parameters: Parameters,
   async execute(params, ctx) {
-    await ctx.ask({ permission: "websearch", patterns: [params.query], always: ["*"] })
+    await ctx.ask({ permission: "websearch", patterns: [params.query], always: ["*"], metadata: { reason: params.reason, query: params.query } })
 
     let stdout = ""
     const python = await resolvePython()

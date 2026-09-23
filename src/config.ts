@@ -27,9 +27,11 @@ export const PROVIDERS: ProviderID[] = ["anthropic", "openai", "ollama", "groq"]
 const DEFAULT_MODEL: Record<ProviderID, string> = {
   anthropic: "claude-sonnet-4-5-20250929",
   openai: "gpt-4.1",
-  groq: "llama-3.3-70b-versatile",
-  // Ollama has no fixed default — callers should resolve one via `ollama list`
-  // (see src/ollama.ts) and pass it explicitly through VEGA_MODEL.
+  // Groq and Ollama have no fixed default — Groq's lineup turns over too
+  // often to hardcode (old ids get retired), and Ollama's depends entirely
+  // on what's pulled locally. Callers should resolve one live (see
+  // src/models.ts's listModels) and pass it explicitly through VEGA_MODEL.
+  groq: "",
   ollama: "",
 }
 

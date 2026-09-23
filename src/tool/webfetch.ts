@@ -9,6 +9,7 @@ const PREVIEW_CHARS = 1500
 
 const Parameters = z.object({
   url: z.string().url().describe("The URL to fetch"),
+  reason: z.string().describe("Brief, one-line explanation of why this URL is being fetched, shown to the user in the approval prompt"),
 })
 
 // Strips HTML to a plain-text file whose LINE BREAKS line up with content
@@ -49,7 +50,12 @@ export const WebFetchTool = defineTool({
     "For large pages, do NOT read the whole thing — use grep on that file to find the relevant lines, then read the file with offset/limit to pull just that range.",
   parameters: Parameters,
   async execute(params, ctx) {
-    await ctx.ask({ permission: "webfetch", patterns: [new URL(params.url).hostname], always: [new URL(params.url).hostname] })
+    await ctx.ask({
+      permission: "webfetch",
+      patterns: [new URL(params.url).hostname],
+      always: [new URL(params.url).hostname],
+      metadata: { reason: params.reason, url: params.url },
+    })
 
     const res = await fetch(params.url, { signal: ctx.abort })
     const contentType = res.headers.get("content-type") ?? ""

@@ -36,6 +36,8 @@ export const palette = {
   // Neutrals
   white: [235, 235, 240] as const,
   gray: [140, 140, 150] as const,
+  // Subtle tint behind inline code spans in rendered markdown.
+  codeBg: [42, 34, 62] as const,
 } as const
 
 // ANSI truecolor helpers for the console path.

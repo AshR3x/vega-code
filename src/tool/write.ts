@@ -6,6 +6,7 @@ import { defineTool } from "./types"
 const Parameters = z.object({
   filePath: z.string().describe("The absolute or relative path to the file to write"),
   content: z.string().describe("The full content to write to the file"),
+  reason: z.string().describe("Brief, one-line explanation of why this write is needed, shown to the user in the approval prompt"),
 })
 
 export const WriteTool = defineTool({
@@ -16,7 +17,7 @@ export const WriteTool = defineTool({
     const filepath = path.isAbsolute(params.filePath) ? params.filePath : path.resolve(ctx.cwd, params.filePath)
     const title = path.relative(ctx.cwd, filepath)
 
-    await ctx.ask({ permission: "write", patterns: [filepath], always: [path.dirname(filepath) + "/*"] })
+    await ctx.ask({ permission: "write", patterns: [filepath], always: [path.dirname(filepath) + "/*"], metadata: { reason: params.reason } })
 
     await mkdir(path.dirname(filepath), { recursive: true })
     await writeFile(filepath, params.content, "utf-8")

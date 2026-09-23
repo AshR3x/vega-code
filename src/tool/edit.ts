@@ -8,6 +8,7 @@ const Parameters = z.object({
   oldString: z.string().describe("The exact text to replace. Must match exactly, including whitespace."),
   newString: z.string().describe("The text to replace it with"),
   replaceAll: z.boolean().optional().describe("Replace all occurrences instead of requiring exactly one match"),
+  reason: z.string().describe("Brief, one-line explanation of why this edit is needed, shown to the user in the approval prompt"),
 })
 
 function countOccurrences(haystack: string, needle: string): number {
@@ -29,7 +30,7 @@ export const EditTool = defineTool({
     const filepath = path.isAbsolute(params.filePath) ? params.filePath : path.resolve(ctx.cwd, params.filePath)
     const title = path.relative(ctx.cwd, filepath)
 
-    await ctx.ask({ permission: "edit", patterns: [filepath], always: [path.dirname(filepath) + "/*"] })
+    await ctx.ask({ permission: "edit", patterns: [filepath], always: [path.dirname(filepath) + "/*"], metadata: { reason: params.reason } })
 
     const content = await readFile(filepath, "utf-8")
     const occurrences = countOccurrences(content, params.oldString)

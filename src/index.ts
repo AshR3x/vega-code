@@ -8,7 +8,8 @@ import { runAgentLoop } from "@/loop"
 import { compact as compactMessages } from "@/context"
 import { resolveModel, MissingApiKeyError } from "@/provider"
 import { Session, newSessionID } from "@/session"
-import { listOllamaModels } from "@/ollama"
+import { listModels } from "@/models"
+import { describeRateLimitError } from "@/util/ratelimit"
 import { runCommand, type CommandCtx } from "@/command"
 import { theme, fromRgb } from "@/tui/theme"
 import { renderLogo, renderPromptFrame, promptBoxWidth, promptBoxTextWidth, PROMPT_FRAME_HEIGHT } from "@/tui/logo"
@@ -205,29 +206,39 @@ function parseArgs(argv: string[]): ParsedArgs {
   return { provider, model, shouldContinue, oneShot: rest.join(" "), testMode, testWidth }
 }
 
-async function selectOllamaModel(askInput: (prompt: string) => Promise<string>): Promise<string> {
-  console.log(theme.dim("Checking local Ollama models (`ollama list`)..."))
+// Ollama has no fixed default at all; Groq's lineup turns over too often to
+// hardcode. Both resolve their model live here instead of silently landing
+// on something possibly stale or (for ollama) not even installed.
+async function selectModel(providerID: "ollama" | "groq", askInput: (prompt: string) => Promise<string>): Promise<string> {
+  console.log(theme.dim(providerID === "ollama" ? "Checking local Ollama models (`ollama list`)..." : "Fetching Groq models..."))
   let models: string[]
   try {
-    models = await listOllamaModels()
+    const result = await listModels(providerID)
+    models = result.models
+    if (!result.live) console.log(theme.gray("(live lookup failed, showing a static fallback list)"))
   } catch (err) {
     console.error(theme.error(err instanceof Error ? err.message : String(err)))
     process.exit(1)
   }
 
+  if (models.length === 0) {
+    console.error(theme.error(providerID === "ollama" ? "No Ollama models found. Pull a model first (e.g. `ollama pull llama3.2`)." : "No Groq models found."))
+    process.exit(1)
+  }
+
   if (models.length === 1) {
-    console.log(theme.dim(`Using ${models[0]} (only local model available)`))
-    await saveModelPreference("ollama", models[0]!)
+    console.log(theme.dim(`Using ${models[0]} (only model available)`))
+    await saveModelPreference(providerID, models[0]!)
     return models[0]!
   }
 
-  console.log(theme.accent("Select an Ollama model:"))
+  console.log(theme.accent(providerID === "ollama" ? "Select an Ollama model:" : "Select a Groq model:"))
   models.forEach((name, i) => console.log(`  ${theme.purple(String(i + 1))}) ${name}`))
   while (true) {
     const reply = (await askInput(theme.accent(`Model [1-${models.length}]: `))).trim()
     const idx = Number(reply)
     if (Number.isInteger(idx) && idx >= 1 && idx <= models.length) {
-      await saveModelPreference("ollama", models[idx - 1]!)
+      await saveModelPreference(providerID, models[idx - 1]!)
       return models[idx - 1]!
     }
     console.log(theme.error("Invalid selection."))
@@ -342,8 +353,8 @@ async function main() {
   const consoleInput = createConsoleAsk()
   const permission = new PermissionService(DEFAULT_RULESET, makeConsolePromptFn((prompt) => consoleInput.ask(prompt)))
 
-  if (cfg.provider === "ollama" && !model) {
-    process.env["VEGA_MODEL"] = await selectOllamaModel((prompt) => consoleInput.ask(prompt))
+  if ((cfg.provider === "ollama" || cfg.provider === "groq") && !model) {
+    process.env["VEGA_MODEL"] = await selectModel(cfg.provider, (prompt) => consoleInput.ask(prompt))
     cfg = await loadConfig()
   }
 
@@ -447,10 +458,13 @@ async function main() {
       await session.save()
     } catch (err) {
       if (assistantLine) process.stdout.write("\n")
+      const rateLimit = describeRateLimitError(err)
       if (err instanceof Error && err.name === "PermissionRejectedError") {
         console.log(theme.accent("Permission denied by user."))
       } else if (controller.signal.aborted) {
         console.log(theme.accent("Interrupted."))
+      } else if (rateLimit) {
+        console.log(theme.error(rateLimit))
       } else {
         console.log(theme.error(`Error: ${err instanceof Error ? err.message : String(err)}`))
       }

@@ -29,6 +29,7 @@ export function resolveModel(cfg: VegaConfig, modelID?: string): LanguageModel {
   if (cfg.provider === "groq") {
     const key = process.env["GROQ_API_KEY"]
     if (!key) throw new MissingApiKeyError("GROQ_API_KEY")
+    if (!id) throw new Error("No Groq model selected. Pass --model, or omit it to pick from the live model list.")
     return createGroq({ apiKey: key })(id)
   }
 

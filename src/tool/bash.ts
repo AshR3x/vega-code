@@ -8,6 +8,7 @@ const MAX_OUTPUT_CHARS = 30_000
 
 const Parameters = z.object({
   command: z.string().describe("The shell command to execute"),
+  reason: z.string().describe("Brief, one-line explanation of why this command is needed, shown to the user in the approval prompt"),
   timeout: z.number().int().positive().optional().describe("Timeout in milliseconds (default 120000)"),
   workdir: z.string().optional().describe("Working directory for the command (defaults to the project directory)"),
 })
@@ -26,7 +27,7 @@ export const BashTool = defineTool({
       permission: "bash",
       patterns: [params.command],
       always: [prefixPattern(params.command)],
-      metadata: { command: params.command },
+      metadata: { reason: params.reason, command: params.command },
     })
 
     const timeout = params.timeout ?? DEFAULT_TIMEOUT_MS

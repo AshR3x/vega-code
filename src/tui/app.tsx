@@ -13,13 +13,16 @@ import { AGENTS, defaultAgent, type AgentDef } from "@/agent"
 import { runCommand, type CommandCtx } from "@/command"
 import type { ProviderID, VegaConfig } from "@/config"
 import { compact as compactMessages } from "@/context"
+import { diffLines, type DiffLine } from "@/tui/diff"
 import { runAgentLoop, type AgentLoopEvent } from "@/loop"
-import { listOllamaModels } from "@/ollama"
+import { listModels } from "@/models"
 import type { PermissionService } from "@/permission"
+import { describeRateLimitError } from "@/util/ratelimit"
 import { resolveModel } from "@/provider"
 import type { Session } from "@/session"
 import { logoRows } from "@/tui/logo"
 import { stripAnsi, truncateForDisplay } from "@/tui/layout"
+import { MarkdownText } from "@/tui/markdown"
 import { colors } from "@/tui/theme"
 
 // index.ts builds the PermissionService's promptFn around this hook, so
@@ -68,13 +71,54 @@ interface HistoryRow {
   name?: string
   input?: string
   status?: "running" | "done" | "error"
+  // Set only on "edit" tool-call rows — rendered as a red/green diff below
+  // `input` instead of dumping oldString/newString as raw text.
+  diff?: DiffLine[]
+}
+
+const MAX_DIFF_LINES = 200
+
+function isEditToolInput(input: unknown): input is { filePath: string; oldString: string; newString: string; replaceAll?: boolean } {
+  return (
+    !!input &&
+    typeof input === "object" &&
+    typeof (input as Record<string, unknown>)["oldString"] === "string" &&
+    typeof (input as Record<string, unknown>)["newString"] === "string"
+  )
 }
 
 interface PendingAsk {
-  id: number
+  askId: number
+  rowId: number
   resolve: (value: PermissionChoice) => void
   permission: string
   patterns: string[]
+  metadata?: Record<string, unknown>
+}
+
+// Renders a tool call's input as clean `key: value` lines instead of raw
+// JSON. Each value is clamped independently (single line, truncated) so one
+// huge field (write's `content`, edit's `oldString`/`newString`) can't
+// swallow the whole box and hide the other params. `reason` is carried
+// separately in PendingAsk.metadata and rendered as its own "Reason:" line,
+// so it's excluded here to avoid printing it twice.
+function formatToolInput(input: unknown): string {
+  if (input && typeof input === "object" && !Array.isArray(input)) {
+    const entries = Object.entries(input as Record<string, unknown>).filter(([key]) => key !== "reason")
+    return entries.map(([key, value]) => `${key}: ${formatToolValue(value)}`).join("\n")
+  }
+  return truncateForDisplay(String(input), 2000)
+}
+
+function formatToolValue(value: unknown): string {
+  if (value === null || value === undefined) return String(value)
+  if (typeof value === "string") {
+    const lines = value.split("\n")
+    const first = truncateForDisplay(lines[0] ?? "", 300)
+    return lines.length > 1 ? `${first} … (+${lines.length - 1} more lines)` : first
+  }
+  if (typeof value === "object") return truncateForDisplay(JSON.stringify(value), 300)
+  return String(value)
 }
 
 interface AskState {
@@ -123,15 +167,17 @@ interface TuiAppProps {
 }
 
 // A tool invocations rendered as a bordered box: `→ name(input)`, then a
-// button row. While a permission ask for this call is pending the border
-// glows accent and Approve/Always/Reject appear (Enter or left-click on a
-// button activates it; ←/→ move focus, Escape rejects); otherwise only Copy
-// shows. The border tint follows the call lifecycle (accent → pending,
-// success → done, error → failed).
-function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[]>; onRespond(rowID: number, choice: PermissionChoice): void }) {
+// button row. Only the oldest pending ask across the whole session is
+// "active" at once — a row whose ask is queued behind it shows a dim
+// "waiting…" note instead of buttons, so at most one approval box is
+// interactive at any time. The border tint follows the call lifecycle
+// (accent → active, dim → queued, success → done, error → failed).
+function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[]>; onRespond(askID: number, choice: PermissionChoice): void }) {
   const renderer = useRenderer()
   const row = props.row
-  const isPending = createMemo(() => props.pendingAsks().some((a) => a.id === row.id))
+  const ask = createMemo(() => props.pendingAsks().find((a) => a.rowId === row.id))
+  const isActive = createMemo(() => props.pendingAsks()[0]?.rowId === row.id)
+  const isQueued = createMemo(() => ask() !== undefined && !isActive())
   const [copied, setCopied] = createSignal(false)
 
   let copyNode: BoxRenderable | undefined
@@ -139,22 +185,26 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
   let alwaysNode: BoxRenderable | undefined
   let rejectNode: BoxRenderable | undefined
 
-  // The newest pending ask grabs keyboard focus so the user can hit Enter to
-  // approve without touching the mouse.
+  // The active ask grabs keyboard focus so the user can hit Enter to approve
+  // without touching the mouse.
   createEffect(() => {
-    if (!isPending()) return
-    const asks = props.pendingAsks()
-    if (asks[asks.length - 1]?.id === row.id) approveNode?.focus()
+    if (isActive()) approveNode?.focus()
   })
 
   const borderColor = createMemo(() => {
-    if (isPending()) return colors.accent
+    if (isActive()) return colors.accent
+    if (isQueued()) return colors.gray
     if (row.status === "error") return colors.error
     if (row.status === "done") return colors.success
     return colors.purpleDim
   })
 
   const copyText = () => `${row.name ?? "tool"}(${row.input ?? ""})`
+
+  function reasonLine(): string | undefined {
+    const reason = ask()?.metadata?.["reason"]
+    return typeof reason === "string" && reason ? reason : undefined
+  }
 
   function focusButton(which: "copy" | "approve" | "always" | "reject"): void {
     const node = which === "copy" ? copyNode : which === "approve" ? approveNode : which === "always" ? alwaysNode : rejectNode
@@ -163,7 +213,7 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
 
   // Label order matches reading order: Copy leads, then the permission row.
   function visibleButtons(): ("copy" | "approve" | "always" | "reject")[] {
-    return isPending() ? ["copy", "approve", "always", "reject"] : ["copy"]
+    return isActive() ? ["copy", "approve", "always", "reject"] : ["copy"]
   }
 
   function activate(which: "copy" | "approve" | "always" | "reject"): void {
@@ -173,7 +223,9 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
       setTimeout(() => setCopied(false), 1500)
       return
     }
-    props.onRespond(row.id, which === "approve" ? "once" : which === "always" ? "always" : "reject")
+    const active = ask()
+    if (!active) return
+    props.onRespond(active.askId, which === "approve" ? "once" : which === "always" ? "always" : "reject")
   }
 
   function buttonKey(e: KeyEvent, which: "copy" | "approve" | "always" | "reject"): void {
@@ -184,7 +236,8 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
     }
     if (e.name === "escape") {
       e.preventDefault()
-      props.onRespond(row.id, "reject")
+      const active = ask()
+      if (active) props.onRespond(active.askId, "reject")
       return
     }
     if (e.name === "left" || e.name === "right") {
@@ -203,6 +256,26 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
       <text width="100%" wrapMode="word" fg={colors.white}>
         {row.input}
       </text>
+      <Show when={row.diff && row.diff.length > 0}>
+        <box width="100%" flexDirection="column" border borderColor={colors.purpleDim} paddingX={1}>
+          <For each={row.diff}>
+            {(line) => (
+              <text width="100%" wrapMode="word" fg={line.type === "add" ? colors.success : line.type === "del" ? colors.error : colors.gray}>
+                {line.type === "add" ? "+ " : line.type === "del" ? "- " : "  "}
+                {line.text}
+              </text>
+            )}
+          </For>
+        </box>
+      </Show>
+      <Show when={isActive() && reasonLine()}>
+        <text width="100%" wrapMode="word" fg={colors.accent}>
+          Reason: {reasonLine()}
+        </text>
+      </Show>
+      <Show when={isQueued()}>
+        <text fg={colors.gray}>waiting for the current approval…</text>
+      </Show>
       <box flexDirection="row" width="100%" paddingTop={1}>
         <box
           border
@@ -221,7 +294,7 @@ function ToolCallRow(props: { row: HistoryRow; pendingAsks: Accessor<PendingAsk[
         >
           <text fg={copied() ? colors.success : colors.white}>{copied() ? "Copied" : "Copy"}</text>
         </box>
-        <Show when={isPending()}>
+        <Show when={isActive()}>
           <box
             border
             borderColor={colors.accent}
@@ -296,6 +369,7 @@ export function TuiApp(props: TuiAppProps) {
   const [clockText, setClockText] = createSignal("")
 
   let rowId = 0
+  let askId = 0
   let streamCursor: { kind: "assistant" | "thinking"; index: number } | null = null
   let currentAbort: AbortController | null = null
   // Thinking is buffered even when collapsed so a double-tap Tab can reveal
@@ -308,6 +382,14 @@ export function TuiApp(props: TuiAppProps) {
 
   let mainInput: InputRenderable | undefined
   let askInput: InputRenderable | undefined
+
+  // Up/Down cycling through previously submitted prompts (shell-history
+  // style). -1 means "not browsing" — the input holds the live draft.
+  // Stepping past the newest history entry on Down restores whatever the
+  // user had typed before they started browsing.
+  const promptHistory: string[] = []
+  let historyIndex = -1
+  let historyDraft = ""
 
   function addRow(content: Omit<HistoryRow, "id">): number {
     const id = rowId++
@@ -344,15 +426,23 @@ export function TuiApp(props: TuiAppProps) {
   // user picks Approve/Always/Reject (or Ctrl+C rejects it).
   function askPermission(req: { permission: string; patterns: string[]; metadata?: Record<string, unknown> }): Promise<PermissionChoice> {
     return new Promise<PermissionChoice>((resolve) => {
-      setPendingAsks((prev) => [...prev, { id: lastToolCallRowId ?? -1, resolve, permission: req.permission, patterns: req.patterns }])
+      const entry: PendingAsk = {
+        askId: askId++,
+        rowId: lastToolCallRowId ?? -1,
+        resolve,
+        permission: req.permission,
+        patterns: req.patterns,
+        metadata: req.metadata,
+      }
+      setPendingAsks((prev) => [...prev, entry])
     })
   }
 
-  function respondPermission(rowID: number, choice: PermissionChoice): void {
-    const ask = pendingAsks().find((a) => a.id === rowID)
-    if (!ask) return
-    setPendingAsks((prev) => prev.filter((a) => a.id !== rowID))
-    ask.resolve(choice)
+  function respondPermission(askID: number, choice: PermissionChoice): void {
+    const entry = pendingAsks().find((a) => a.askId === askID)
+    if (!entry) return
+    setPendingAsks((prev) => prev.filter((a) => a.askId !== askID))
+    entry.resolve(choice)
     if (pendingAsks().length === 0) focusActiveInput()
   }
 
@@ -536,10 +626,22 @@ export function TuiApp(props: TuiAppProps) {
         streamCursor = null
         break
       case "tool-call": {
-        const input = truncateForDisplay(JSON.stringify(event.input), 2000)
         const id = pushBlock("tool-call", "")
         setRows(id, "name", event.name)
-        setRows(id, "input", input)
+        if (event.name === "edit" && isEditToolInput(event.input)) {
+          const { filePath, oldString, newString, replaceAll } = event.input
+          setRows(id, "input", formatToolInput({ filePath, ...(replaceAll ? { replaceAll } : {}) }))
+          const lines = diffLines(oldString, newString)
+          setRows(
+            id,
+            "diff",
+            lines.length > MAX_DIFF_LINES
+              ? [...lines.slice(0, MAX_DIFF_LINES), { type: "ctx", text: `… (${lines.length - MAX_DIFF_LINES} more lines)` }]
+              : lines,
+          )
+        } else {
+          setRows(id, "input", formatToolInput(event.input))
+        }
         setRows(id, "status", "running")
         lastToolCallRowId = id
         break
@@ -577,10 +679,13 @@ export function TuiApp(props: TuiAppProps) {
       await props.opts.session.save()
     } catch (err) {
       streamCursor = null
+      const rateLimit = describeRateLimitError(err)
       if (err instanceof Error && err.name === "PermissionRejectedError") {
         pushBlock("system", "Permission denied by user.")
       } else if (controller.signal.aborted) {
         pushBlock("system", "Interrupted.")
+      } else if (rateLimit) {
+        pushBlock("error", rateLimit)
       } else {
         pushBlock("error", `Error: ${err instanceof Error ? err.message : String(err)}`)
       }
@@ -625,6 +730,13 @@ export function TuiApp(props: TuiAppProps) {
           // Clear the whole page too, not just context: wipe every rendered
           // row and any dangling per-turn state so /clear gives a blank slate.
           setRows([])
+          // rowId must reset alongside the array: addRow()'s caller-visible
+          // `id` is only a valid array index (used by later setRows(id, ...)
+          // calls, e.g. in the tool-call handler) as long as rowId tracks
+          // rows.length in lockstep. Leaving it stale after clearing to 0
+          // desyncs the two, so the next tool-call row writes its name/input
+          // at an index that doesn't exist and crashes deep in the store.
+          rowId = 0
           streamCursor = null
           thinkingBuffer = ""
           thinkingRowIndex = null
@@ -661,7 +773,35 @@ export function TuiApp(props: TuiAppProps) {
     mainInput?.clear()
     const trimmed = value.trim()
     if (trimmed === "") return
+    if (promptHistory[promptHistory.length - 1] !== trimmed) promptHistory.push(trimmed)
+    historyIndex = -1
+    historyDraft = ""
     void (trimmed.startsWith("/") ? runSlashCommand(trimmed) : runTurn(trimmed))
+  }
+
+  // Up walks back through promptHistory (saving the in-progress draft the
+  // first time), Down walks forward and restores that draft once you step
+  // past the newest entry.
+  function handleMainInputKeyDown(e: KeyEvent): void {
+    if (e.name === "up") {
+      if (promptHistory.length === 0) return
+      e.preventDefault()
+      if (historyIndex === -1) historyDraft = mainInput?.value ?? ""
+      historyIndex = historyIndex === -1 ? promptHistory.length - 1 : Math.max(0, historyIndex - 1)
+      if (mainInput) mainInput.value = promptHistory[historyIndex]!
+      return
+    }
+    if (e.name === "down") {
+      if (historyIndex === -1) return
+      e.preventDefault()
+      historyIndex++
+      if (historyIndex >= promptHistory.length) {
+        historyIndex = -1
+        if (mainInput) mainInput.value = historyDraft
+      } else if (mainInput) {
+        mainInput.value = promptHistory[historyIndex]!
+      }
+    }
   }
 
   function handleAskSubmit(value: unknown): void {
@@ -673,16 +813,30 @@ export function TuiApp(props: TuiAppProps) {
     state.resolve(value)
   }
 
-  // Full-screen entry: in config file `provider: "ollama"` with no model set
-  // (no model saved and no --model flag), pick a local model through the TUI
-  // itself instead of the console fallback — same flow as the CLI path.
-  async function bootstrapOllama(): Promise<void> {
+  // Full-screen entry: config resolved to a provider with no model set (no
+  // saved preference and no --model flag) — ollama because it has no fixed
+  // default at all, groq because its lineup turns over too often to
+  // hardcode. Fetch that provider's live model list through the TUI itself
+  // instead of silently falling back to something possibly stale.
+  async function bootstrapModel(providerID: "ollama" | "groq"): Promise<void> {
     setBusy(true)
     try {
-      pushBlock("system", "Checking local Ollama models (`ollama list`)...")
-      const models = await listOllamaModels()
+      pushBlock("system", providerID === "ollama" ? "Checking local Ollama models (`ollama list`)..." : "Fetching Groq models...")
+      let models: string[]
+      try {
+        const result = await listModels(providerID)
+        models = result.models
+        if (!result.live) pushBlock("system", "(live lookup failed, showing a static fallback list)")
+      } catch (err) {
+        pushBlock("error", err instanceof Error ? err.message : String(err))
+        exitApp()
+        return
+      }
       if (models.length === 0) {
-        pushBlock("error", "No Ollama models found. Pull a model first (e.g. `ollama pull llama3.2`).")
+        pushBlock(
+          "error",
+          providerID === "ollama" ? "No Ollama models found. Pull a model first (e.g. `ollama pull llama3.2`)." : "No Groq models found.",
+        )
         exitApp()
         return
       }
@@ -690,9 +844,9 @@ export function TuiApp(props: TuiAppProps) {
       let chosen: string | undefined
       if (models.length === 1) {
         chosen = models[0]!
-        pushBlock("system", `Using ${chosen} (only local model available)`)
+        pushBlock("system", `Using ${chosen} (only model available)`)
       } else {
-        pushBlock("system", "Select an Ollama model:")
+        pushBlock("system", providerID === "ollama" ? "Select an Ollama model:" : "Select a Groq model:")
         models.forEach((name, i) => pushBlock("system", `  ${i + 1}) ${name}`))
         while (true) {
           const reply = (await ask(`Model [1-${models.length}]: `)).trim()
@@ -711,7 +865,7 @@ export function TuiApp(props: TuiAppProps) {
         return
       }
 
-      const next = await props.opts.setModel("ollama", chosen)
+      const next = await props.opts.setModel(providerID, chosen)
       applyConfig(next)
       pushBlock("system", `Using model: ${chosen}`)
     } catch (err) {
@@ -723,7 +877,7 @@ export function TuiApp(props: TuiAppProps) {
 
   onMount(() => {
     const cfg = props.opts.getConfig()
-    if (cfg.provider === "ollama" && !cfg.model) void bootstrapOllama()
+    if ((cfg.provider === "ollama" || cfg.provider === "groq") && !cfg.model) void bootstrapModel(cfg.provider)
     const fmt = (d: Date) => d.toLocaleTimeString("en-GB", { hour12: false })
     setClockText(fmt(new Date()))
     const timer = setInterval(() => setClockText(fmt(new Date())), 1000)
@@ -771,27 +925,41 @@ export function TuiApp(props: TuiAppProps) {
         </For>
       </box>
 
-      <scrollbox flexGrow={1} width="100%" stickyScroll stickyStart="bottom" paddingTop={1} paddingBottom={1} paddingLeft={2}>
+      <scrollbox
+        flexGrow={1}
+        flexShrink={1}
+        minHeight={0}
+        width="100%"
+        stickyScroll
+        stickyStart="bottom"
+        paddingTop={1}
+        paddingBottom={1}
+        paddingLeft={2}
+      >
         <For each={rows}>
           {(row) => {
             if (row.kind === "tool-call") {
               return <ToolCallRow row={row} pendingAsks={pendingAsks} onRespond={respondPermission} />
             }
             const label = rowLabel(row.kind, props.opts.getAgent())
+            const labelSpan = label ? (
+              // The <span> catalogue doesn't type attributes; set it via the
+              // node ref so the label shares the row's emphasis.
+              <span
+                style={{ fg: label.fg }}
+                ref={(node) => {
+                  if (node) node.attributes = label.attrs
+                }}
+              >
+                {label.prefix}
+              </span>
+            ) : undefined
+            if (row.kind === "assistant") {
+              return <MarkdownText text={row.text} baseColor={colors.white} leading={labelSpan} />
+            }
             return (
               <text width="100%" wrapMode="word" fg={rowColor(row.kind)} attributes={rowAttributes(row.kind)}>
-                {label ? (
-                  // The <span> catalogue doesn't type attributes; set it via
-                  // the node ref so the label shares the row's emphasis.
-                  <span
-                    style={{ fg: label.fg }}
-                    ref={(node) => {
-                      if (node) node.attributes = label.attrs
-                    }}
-                  >
-                    {label.prefix}
-                  </span>
-                ) : undefined}
+                {labelSpan}
                 {row.text}
               </text>
             )
@@ -810,6 +978,7 @@ export function TuiApp(props: TuiAppProps) {
                 if (!askState()) node.focus()
               }}
               onSubmit={handleMainSubmit}
+              onKeyDown={handleMainInputKeyDown}
               placeholder={busy() ? "…" : "Ask anything — or /help for commands"}
               maxLength={1000}
             />

@@ -1,4 +1,14 @@
 node_modules/
 .vega/
+.vega_orig/
 .env
+.env.*.local
 *.log
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+
+# One-off scratch/probe files that shouldn't get committed
+*.tmp.ts
+Ttuti_kC1ho_614.mp3
