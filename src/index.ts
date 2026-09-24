@@ -296,7 +296,7 @@ async function main() {
 
   let cfg = await loadConfig()
 
-  const cwd = process.cwd()
+  let cwd = process.cwd()
   let agent: AgentDef = defaultAgent()
   const session = shouldContinue ? (await Session.mostRecent()) ?? (await Session.create(newSessionID())) : await Session.create(newSessionID())
 
@@ -331,7 +331,10 @@ async function main() {
     // pull in OpenTUI (and its native renderer) at startup.
     const { runTui } = await import("@/tui/app")
     await runTui({
-      cwd,
+      getCwd: () => cwd,
+      setCwd(dir) {
+        cwd = dir
+      },
       hooks,
       getConfig: () => cfg,
       getAgent: () => agent,
@@ -486,6 +489,10 @@ async function main() {
     getAgent: () => agent,
     setAgent(next) {
       agent = next
+    },
+    getCwd: () => cwd,
+    setCwd(dir) {
+      cwd = dir
     },
     permission,
     ask: (prompt) => consoleInput.ask(prompt),

@@ -1,3 +1,4 @@
+import os from "node:os"
 import { createEffect, createMemo, createSignal, For, Index, onCleanup, onMount, Show, type Accessor } from "solid-js"
 import { createStore } from "solid-js/store"
 import { onFocus, render, useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/solid"
@@ -61,7 +62,8 @@ function initialMode(agent: AgentDef): Mode {
 }
 
 export interface TuiOptions {
-  cwd: string
+  getCwd(): string
+  setCwd(dir: string): void
   hooks: TuiHooks
   getConfig(): VegaConfig
   getAgent(): AgentDef
@@ -372,6 +374,8 @@ export function TuiApp(props: TuiAppProps) {
   const [rows, setRows] = createStore<HistoryRow[]>([])
   const [askState, setAskState] = createSignal<AskState | null>(null)
   const [busy, setBusy] = createSignal(false)
+  // Working directory is session state that /change-dir can replace.
+  const [cwd, setCwdSignal] = createSignal(props.opts.getCwd())
   const [thinkingExpanded, setThinkingExpanded] = createSignal(false)
   const [mode, setMode] = createSignal<Mode>(initialMode(props.opts.getAgent()))
   const [pendingAsks, setPendingAsks] = createSignal<PendingAsk[]>([])
@@ -689,7 +693,7 @@ export function TuiApp(props: TuiAppProps) {
       pushBlock("user", userText)
       const result = await runAgentLoop({
         agent: props.opts.getAgent(),
-        cwd: props.opts.cwd,
+        cwd: cwd(),
         permission: props.opts.permission,
         abort: controller.signal,
         sessionID: props.opts.session.data.id,
@@ -735,6 +739,11 @@ export function TuiApp(props: TuiAppProps) {
           return next
         },
         getAgent: props.opts.getAgent,
+        getCwd: cwd,
+        setCwd(dir) {
+          props.opts.setCwd(dir)
+          setCwdSignal(dir)
+        },
         setAgent(next) {
           props.opts.setAgent(next)
           // Keep the mode indicator in sync with a manual /agent switch.
@@ -923,10 +932,10 @@ export function TuiApp(props: TuiAppProps) {
 
   // Dynamic terminal/window title: project + agent, prefixed with what the
   // session is doing so a backgrounded tab shows when it needs attention.
-  const projectName = props.opts.cwd.split(/[\\/]/).filter(Boolean).pop() ?? "vega"
+  const projectName = createMemo(() => cwd().split(/[\\/]/).filter(Boolean).pop() ?? "vega")
   createEffect(() => {
     const state = askState() || pendingAsks().length > 0 ? "⚠ awaiting input" : busy() ? "● working" : ""
-    const title = [state, `vega · ${projectName}`, statusMemo().agent].filter(Boolean).join(" · ")
+    const title = [state, `vega · ${projectName()}`, statusMemo().agent].filter(Boolean).join(" · ")
     if (!renderer.isDestroyed) renderer.setTerminalTitle(title)
   })
 
@@ -984,6 +993,16 @@ export function TuiApp(props: TuiAppProps) {
     })
     vizControl = handle
     onCleanup(() => handle.stop())
+  })
+
+  // Active directory, bottom right: home shown as ~, shortened from the left
+  // (keeping the deepest folders) when the terminal is narrow.
+  const cwdLabel = createMemo(() => {
+    const home = os.homedir()
+    const dir = cwd()
+    const shown = home && dir.toLowerCase().startsWith(home.toLowerCase()) ? "~" + dir.slice(home.length) : dir
+    const max = Math.max(12, Math.min(48, Math.floor(dims().width / 2) - 4))
+    return shown.length <= max ? shown : "…" + shown.slice(shown.length - (max - 1))
   })
 
   const logo = logoRows()
@@ -1187,9 +1206,15 @@ export function TuiApp(props: TuiAppProps) {
         </box>
       </box>
 
-      <text width="100%" flexShrink={0} wrapMode="none" fg={colors.gray} truncate paddingLeft={2}>
-        Shift+Tab: modes   /help commands   /models models   /agent agents
-      </text>
+      <box width="100%" flexShrink={0} flexDirection="row" paddingLeft={2} paddingRight={2}>
+        <text flexShrink={1} wrapMode="none" fg={colors.gray} truncate>
+          Shift+Tab: modes   /help commands   /models models   /agent agents
+        </text>
+        <box flexGrow={1} />
+        <text flexShrink={0} wrapMode="none" fg={colors.gray}>
+          {cwdLabel()}
+        </text>
+      </box>
     </box>
   )
 }

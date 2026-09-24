@@ -3,6 +3,8 @@
 An agentic coding CLI built on Bun + the Vercel AI SDK. Built around the tool definitions, wildcard permission ruleset,
 context compaction, and subagent architecture that make an agentic CLI actually usable.
 
+**Puts the vibe in vibe coding.**
+
 
 ## Screenshot
 
@@ -35,6 +37,9 @@ cp .env.example .env   # fill in ANTHROPIC_API_KEY, OPENAI_API_KEY, and/or GROQ_
 
 Ollama needs no API key, just the `ollama` CLI on PATH with the daemon running.
 
+`websearch` and `webfetch` use Python (`pip install ddgs trafilatura`). The optional header music visualizer is
+Windows-only (`pip install -r visualizer/requirements.txt`; disable with `VEGA_VISUALIZER=off`).
+
 ## Usage
 
 ```
@@ -46,7 +51,7 @@ bun run src/index.ts --model <id>                   # override model
 ```
 
 Slash commands in the REPL: `/help`, `/models`, `/provider`, `/agent`, `/plan`, `/build`, `/auto`, `/compact`,
-`/clear`, `/exit`.
+`/clear`, `/change-dir` (`/cd`), `/exit`.
 
 ## What's deliberately left out (vs. real opencode)
 

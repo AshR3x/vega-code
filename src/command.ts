@@ -1,3 +1,6 @@
+import os from "node:os"
+import path from "node:path"
+import { stat } from "node:fs/promises"
 import { PROVIDERS, type ProviderID, type VegaConfig } from "@/config"
 import { AGENTS, primaryAgents, type AgentDef } from "@/agent"
 import { listModels } from "@/models"
@@ -9,6 +12,8 @@ export interface CommandCtx {
   setModel(provider: ProviderID, model: string): Promise<VegaConfig>
   getAgent(): AgentDef
   setAgent(agent: AgentDef): void
+  getCwd(): string
+  setCwd(dir: string): void
   permission: PermissionService
   ask(prompt: string): Promise<string>
   print(text: string): void
@@ -60,6 +65,34 @@ async function switchProviderAndModel(ctx: CommandCtx): Promise<void> {
   if (!model) return
   const next = await ctx.setModel(providerID, model)
   ctx.print(theme.success(`Switched to ${next.provider}/${next.model}`))
+}
+
+// "~" and "~/x" expand to the home dir; surrounding quotes (for paths with
+// spaces) are stripped; relative paths resolve against the current directory.
+function resolveDir(input: string, current: string): string {
+  let raw = input.trim().replace(/^(["'])(.*)\1$/, "$2")
+  if (raw === "~" || raw.startsWith("~/") || raw.startsWith("~\\")) raw = path.join(os.homedir(), raw.slice(1))
+  return path.resolve(current, raw)
+}
+
+async function changeDir(args: string[], ctx: CommandCtx): Promise<void> {
+  if (args.length === 0) {
+    ctx.print(`Current directory: ${ctx.getCwd()}`)
+    ctx.print(theme.gray("Usage: /change-dir <path>   (also /cd; ~ and relative paths work)"))
+    return
+  }
+  const target = resolveDir(args.join(" "), ctx.getCwd())
+  const info = await stat(target).catch(() => undefined)
+  if (!info) {
+    ctx.print(theme.error(`No such directory: ${target}`))
+    return
+  }
+  if (!info.isDirectory()) {
+    ctx.print(theme.error(`Not a directory: ${target}`))
+    return
+  }
+  ctx.setCwd(target)
+  ctx.print(theme.success(`Working directory: ${target}`))
 }
 
 const COMMANDS: Command[] = [
@@ -130,6 +163,20 @@ const COMMANDS: Command[] = [
       const next = !ctx.permission.isAutoApprove()
       ctx.permission.setAutoApprove(next)
       ctx.print(next ? theme.accent("Auto mode ON — permission prompts will be skipped.") : theme.success("Auto mode OFF — permissions will ask again."))
+    },
+  },
+  {
+    name: "change-dir",
+    description: "Change the working directory the agent's tools run in (alias: /cd)",
+    async run(args, ctx) {
+      await changeDir(args, ctx)
+    },
+  },
+  {
+    name: "cd",
+    description: "Alias for /change-dir",
+    async run(args, ctx) {
+      await changeDir(args, ctx)
     },
   },
   {
