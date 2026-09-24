@@ -66,7 +66,7 @@ and `/models` REPL commands both work by mutating `process.env` and re-calling `
 config objects around. `/models` lists models live from the provider's own API (Anthropic/OpenAI `GET
 /v1/models`) or `ollama list` for the ollama provider — never a hardcoded model list, matching the project's
 general preference for live discovery over static tables that go stale (see `src/ollama.ts`,
-`src/tool/websearch.ts`'s DuckDuckGo scraping likewise avoids a paid/keyed API).
+`src/tool/websearch.ts`'s keyless `ddgs` search likewise avoids a paid API).
 
 **Session persistence** (`src/session.ts`): one JSON file per session under `.vega/sessions/<id>.json`
 containing the raw `ModelMessage[]` array (the AI SDK's own message format — no custom message-parts model).
@@ -83,9 +83,15 @@ containing the raw `ModelMessage[]` array (the AI SDK's own message format — n
   (pasted multi-line input, piped/scripted stdin) gets silently dropped, and a pending `question()` never
   resolves once stdin hits EOF, which kills the process with no error. The queue + `'close'` handler in
   `index.ts` fixes both. Don't replace it with a bare `rl.question()` loop.
-- `src/tool/websearch.ts` regex-parses DuckDuckGo's HTML (`result__body`/`result__a`/`result__snippet` classes) —
-  there's no JSON API for DDG text search. If it starts returning zero results, DDG likely changed its markup or
-  is rate-limiting based on TLS fingerprint (a plain `fetch()` doesn't spoof one).
+- **`websearch` and `webfetch` shell out to Python** (`src/tool/py.ts`) and need `pip install ddgs trafilatura`.
+  Packages are probed separately: without `trafilatura`, `webfetch` falls back to the regex `htmlToText`; without
+  `ddgs`, only `websearch` fails. Options go in as one JSON argv blob and page bytes over stdin (Windows argv cap).
+  `ddgs` silently returns `[]` when DDG fingerprint-blocks a request, so `websearch` retries once before saying
+  "no results".
+- **`webfetch` follows redirects by hand** so a cross-host hop re-prompts for `webfetch` permission — don't switch
+  it back to `redirect: "follow"`. Pages are extracted once, cached per session (url + mode + include), and the
+  optional `query` picks sections with a small BM25 scorer in TS; the outline's line ranges must match what
+  `read` shows, so cleanup happens in `normalize()` before line numbers are assigned.
 
 ## Project conventions
 

@@ -32,7 +32,12 @@ export class PermissionDeniedError extends Error {
 
 export class PermissionRejectedError extends Error {
   constructor() {
-    super("User rejected the permission request")
+    // This text is the tool result the model sees, so it doubles as the
+    // instruction for what to do next.
+    super(
+      "The user rejected this tool call. Do not retry it or call any other tools. " +
+        "Briefly acknowledge the rejection and ask the user what they would like you to do instead.",
+    )
     this.name = "PermissionRejectedError"
   }
 }
@@ -67,6 +72,19 @@ export const DEFAULT_RULESET: Ruleset = [
 export class PermissionService {
   private approved: Ruleset = []
   private autoApprove = false
+  private rejected = false
+
+  // Once the user rejects a request, everything else that would prompt in the
+  // same turn (parallel tool calls, subagent calls) is rejected without asking,
+  // and the loop stops offering tools. Callers reset this at the start of each
+  // user turn — not per runAgentLoop, since subagents share this service.
+  resetTurn(): void {
+    this.rejected = false
+  }
+
+  hasRejection(): boolean {
+    return this.rejected
+  }
 
   constructor(
     private ruleset: Ruleset,
@@ -94,6 +112,7 @@ export class PermissionService {
     }
     if (!needsAsk) return
     if (this.autoApprove) return
+    if (this.rejected) throw new PermissionRejectedError()
 
     const reply = await this.prompt({
       permission: input.permission,
@@ -101,7 +120,10 @@ export class PermissionService {
       metadata: input.metadata,
     })
 
-    if (reply === "reject") throw new PermissionRejectedError()
+    if (reply === "reject") {
+      this.rejected = true
+      throw new PermissionRejectedError()
+    }
     if (reply === "always") {
       for (const pattern of input.always ?? input.patterns) {
         this.approved.push({ permission: input.permission, pattern, action: "allow" })

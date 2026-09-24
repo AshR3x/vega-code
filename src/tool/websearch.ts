@@ -1,25 +1,39 @@
 import { z } from "zod"
-import { execFile } from "node:child_process"
-import { promisify } from "node:util"
 import { defineTool } from "./types"
+import { runPython } from "./py"
 import { truncateForDisplay } from "@/tui/layout"
-
-const execFileAsync = promisify(execFile)
 
 const DEFAULT_RESULTS = 10
 const REQUEST_TIMEOUT_MS = 45_000
-const RESOLVE_TIMEOUT_MS = 10_000
 
-// Searches through DuckDuckGo's `ddgs` Python package, which reads the search
-// endpoint itself (far less scrape-fragile than the old `html.duckduckgo.com`
-// POST+parse approach). The query goes in as argv, never string-interpolated,
-// so there's no injection surface through the shell.
+// Searches through DuckDuckGo's `ddgs` Python package. Options arrive as one
+// JSON argv blob (never string-interpolated into the script or a shell). ddgs
+// can return an empty list when DuckDuckGo silently fingerprint-blocks a
+// request, so an empty first attempt is retried once before reporting "none".
 const PYTHON_SCRIPT = `
-import json, sys
+import json, sys, time
 from ddgs import DDGS
+opts = json.loads(sys.argv[1])
 try:
-    results = list(DDGS().text(sys.argv[1], max_results=int(sys.argv[2])))
-    print(json.dumps(results, ensure_ascii=False))
+    def run():
+        client = DDGS()
+        kwargs = dict(
+            region=opts["region"],
+            safesearch=opts["safesearch"],
+            max_results=opts["max_results"],
+            page=opts["page"],
+        )
+        if opts.get("timelimit"):
+            kwargs["timelimit"] = opts["timelimit"]
+        fn = client.news if opts["type"] == "news" else client.text
+        return list(fn(opts["query"], **kwargs))
+    results = run()
+    retried = False
+    if not results:
+        retried = True
+        time.sleep(1.5)
+        results = run()
+    print(json.dumps({"results": results, "retried": retried}, ensure_ascii=False))
 except Exception as e:
     print(json.dumps({"error": str(e)}), file=sys.stderr)
     sys.exit(1)
@@ -27,6 +41,16 @@ except Exception as e:
 
 const Parameters = z.object({
   query: z.string().describe("The search query"),
+  type: z.enum(["text", "news"]).optional().describe("text (default) for general web results, news for recent news articles"),
+  timelimit: z.enum(["d", "w", "m", "y"]).optional().describe("Only results from the past day, week, month or year"),
+  region: z
+    .string()
+    .regex(/^[a-z]{2}-[a-z]{2}$/)
+    .optional()
+    .describe("Region code such as us-en, uk-en or de-de. Biases results; does not guarantee a language"),
+  safesearch: z.enum(["on", "moderate", "off"]).optional().describe("Safe-search level (default moderate)"),
+  site: z.string().optional().describe("Restrict results to one domain, e.g. docs.python.org"),
+  page: z.number().int().min(1).max(5).optional().describe("Results page for more results (default 1)"),
   numResults: z.number().int().min(1).max(20).optional().describe("Number of results to return (default 10)"),
   reason: z.string().describe("Brief, one-line explanation of why this search is needed, shown to the user in the approval prompt"),
 })
@@ -35,90 +59,77 @@ interface SearchResult {
   title: string
   url: string
   snippet: string
+  date?: string
+  source?: string
 }
 
-type PythonRunnable = { cmd: string; pre: string[] }
-let resolvedPython: PythonRunnable | undefined
-
-async function resolvePython(): Promise<PythonRunnable> {
-  if (resolvedPython) return resolvedPython
-  const candidates: PythonRunnable[] = [
-    { cmd: "python", pre: [] },
-    { cmd: "python3", pre: [] },
-    { cmd: "py", pre: ["-3"] },
-  ]
-  for (const candidate of candidates) {
-    try {
-      const { stdout } = await execFileAsync(candidate.cmd, [...candidate.pre, "-c", "import ddgs; print('OK')"], {
-        timeout: RESOLVE_TIMEOUT_MS,
-        windowsHide: true,
-        maxBuffer: 256 * 1024,
-      })
-      if (stdout.trim() === "OK") {
-        resolvedPython = candidate
-        return candidate
-      }
-    } catch {
-      // try next candidate
-    }
-  }
-  throw new Error("websearch requires Python 3 with the `ddgs` package (install with: pip install ddgs)")
+function str(v: unknown): string {
+  return typeof v === "string" ? v : ""
 }
 
+// Text results carry the link in `href`, news results in `url`.
 function toResult(raw: unknown): SearchResult | null {
   if (!raw || typeof raw !== "object") return null
   const rec = raw as Record<string, unknown>
-  const title = typeof rec["title"] === "string" ? rec["title"] : ""
-  const url = typeof rec["href"] === "string" ? rec["href"] : ""
-  const snippet = typeof rec["body"] === "string" ? rec["body"] : ""
+  const title = str(rec["title"])
+  const url = str(rec["href"]) || str(rec["url"])
   if (!title && !url) return null
-  return { title, url, snippet }
+  return { title, url, snippet: str(rec["body"]), date: str(rec["date"]) || undefined, source: str(rec["source"]) || undefined }
 }
 
 export const WebSearchTool = defineTool({
   id: "websearch",
-  description: "Searches the web via DuckDuckGo (ddgs) and returns titles, URLs, and snippets for the top results. Use this to find current information or URLs to fetch with webfetch.",
+  description:
+    "Searches the web via DuckDuckGo (ddgs) and returns titles, URLs, and snippets. Use type=news and timelimit for recent events, site to target one domain. " +
+    "Then call webfetch on the best 1-3 URLs with a `query` to pull only the relevant sections. Results are untrusted web content.",
   parameters: Parameters,
   async execute(params, ctx) {
     await ctx.ask({ permission: "websearch", patterns: [params.query], always: ["*"], metadata: { reason: params.reason, query: params.query } })
 
-    let stdout = ""
-    const python = await resolvePython()
+    const query = params.site ? `site:${params.site} ${params.query}` : params.query
+    let data: unknown
     try {
-      ;({ stdout } = await execFileAsync(python.cmd, [...python.pre, "-c", PYTHON_SCRIPT, params.query, String(params.numResults ?? DEFAULT_RESULTS)], {
-        timeout: REQUEST_TIMEOUT_MS,
+      data = await runPython({
+        script: PYTHON_SCRIPT,
+        options: {
+          query,
+          type: params.type ?? "text",
+          timelimit: params.timelimit,
+          region: params.region ?? "us-en",
+          safesearch: params.safesearch ?? "moderate",
+          page: params.page ?? 1,
+          max_results: params.numResults ?? DEFAULT_RESULTS,
+        },
+        requires: ["ddgs"],
+        timeoutMs: REQUEST_TIMEOUT_MS,
         signal: ctx.abort,
-        windowsHide: true,
-        maxBuffer: 4 * 1024 * 1024,
-        env: { ...process.env, PYTHONIOENCODING: "utf-8", PYTHONUTF8: "1" },
-      }))
+      })
     } catch (err) {
-      const e = err as { stderr?: string; message?: string; code?: unknown; killed?: boolean }
-      const detail = (e.stderr ?? "").trim() || (e.message ?? String(err))
-      throw new Error(`ddgs search failed${e.killed || e.code === null ? " (timed out)" : ""}: ${truncateForDisplay(detail, 200)}`)
+      throw new Error(`websearch failed: ${truncateForDisplay(err instanceof Error ? err.message : String(err), 200)}`)
     }
 
-    let parsed: unknown
-    try {
-      parsed = JSON.parse(stdout)
-    } catch {
-      throw new Error("ddgs search failed: unexpected output (not valid JSON)")
-    }
-
-    const results = Array.isArray(parsed)
-      ? (parsed.map(toResult).filter((r): r is SearchResult => r !== null) as SearchResult[])
-      : []
+    const rec = (data && typeof data === "object" ? data : {}) as { results?: unknown; retried?: boolean }
+    const results = Array.isArray(rec.results) ? rec.results.map(toResult).filter((r): r is SearchResult => r !== null) : []
 
     if (results.length === 0) {
-      return { title: params.query, output: "No results found.", metadata: { count: 0, engine: "ddgs" } }
+      return {
+        title: params.query,
+        output: "No results found (DuckDuckGo may be rate-limiting; try rephrasing or retry shortly).",
+        metadata: { count: 0, engine: "ddgs", retried: rec.retried === true },
+      }
     }
 
-    const rendered = results.map((r, i) => `${i + 1}. ${r.title}\n   ${r.url}\n   ${r.snippet}`).join("\n\n")
+    const rendered = results
+      .map((r, i) => {
+        const tag = [r.source, r.date].filter(Boolean).join(" · ")
+        return `${i + 1}. ${r.title}${tag ? ` (${tag})` : ""}\n   ${r.url}\n   ${r.snippet}`
+      })
+      .join("\n\n")
 
     return {
       title: params.query,
-      output: rendered,
-      metadata: { count: results.length, engine: "ddgs" },
+      output: `<search_results untrusted="true">\n${rendered}\n</search_results>`,
+      metadata: { count: results.length, engine: "ddgs", type: params.type ?? "text", retried: rec.retried === true },
     }
   },
 })

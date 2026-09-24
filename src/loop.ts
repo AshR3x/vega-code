@@ -60,6 +60,9 @@ export async function runAgentLoop(input: AgentLoopInput): Promise<AgentLoopResu
     messages,
     tools,
     stopWhen: stepCountIs(MAX_STEPS),
+    // After a rejection the model gets exactly one more, tool-free step: its
+    // reply (per the rejection message) asks the user what to do instead.
+    prepareStep: () => (input.permission.hasRejection() ? { toolChoice: "none" as const } : undefined),
     abortSignal: input.abort,
     experimental_context: toolContext,
   })
@@ -81,7 +84,8 @@ export async function runAgentLoop(input: AgentLoopInput): Promise<AgentLoopResu
       const output = typeof part.output === "string" ? part.output : JSON.stringify(part.output)
       input.onChunk({ type: "tool-result", name: part.toolName, output })
     } else if (part.type === "tool-error") {
-      input.onChunk({ type: "tool-error", name: part.toolName, error: String(part.error) })
+      const rejected = part.error instanceof Error && part.error.name === "PermissionRejectedError"
+      input.onChunk({ type: "tool-error", name: part.toolName, error: rejected ? "Rejected by user." : String(part.error) })
     } else if (part.type === "error") {
       input.onChunk({ type: "tool-error", name: "stream", error: String(part.error) })
     }

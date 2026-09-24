@@ -402,6 +402,7 @@ async function main() {
     const sigint = () => controller.abort()
     process.once("SIGINT", sigint)
 
+    permission.resetTurn()
     session.data.messages.push({ role: "user", content: userText })
 
     let assistantLine = false

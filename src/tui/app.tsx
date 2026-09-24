@@ -21,6 +21,7 @@ import { describeRateLimitError } from "@/util/ratelimit"
 import { resolveModel } from "@/provider"
 import type { Session } from "@/session"
 import { logoRows } from "@/tui/logo"
+import { randomSplash } from "@/tui/splash"
 import { stripAnsi, truncateForDisplay } from "@/tui/layout"
 import { MarkdownText } from "@/tui/markdown"
 import { colors } from "@/tui/theme"
@@ -662,6 +663,7 @@ export function TuiApp(props: TuiAppProps) {
     setBusy(true)
     const controller = new AbortController()
     currentAbort = controller
+    props.opts.permission.resetTurn()
     try {
       props.opts.session.data.messages.push({ role: "user", content: userText })
       pushBlock("user", userText)
@@ -899,6 +901,54 @@ export function TuiApp(props: TuiAppProps) {
     }
   })
 
+  // Dynamic terminal/window title: project + agent, prefixed with what the
+  // session is doing so a backgrounded tab shows when it needs attention.
+  const projectName = props.opts.cwd.split(/[\\/]/).filter(Boolean).pop() ?? "vega"
+  createEffect(() => {
+    const state = askState() || pendingAsks().length > 0 ? "⚠ awaiting input" : busy() ? "● working" : ""
+    const title = [state, `vega · ${projectName}`, statusMemo().agent].filter(Boolean).join(" · ")
+    if (!renderer.isDestroyed) renderer.setTerminalTitle(title)
+  })
+
+  // Working indicator above the prompt (like Claude Code's spinner line): an
+  // animated glyph, a random splash line (fresh per turn, rotating on long
+  // turns) and elapsed seconds.
+  // Doom-style "argent charge": a bright red slug sweeps back and forth along
+  // a track, leaving a fading orange trail like a projectile/muzzle flash.
+  const TRACK = 12
+  const PERIOD = 2 * (TRACK - 1)
+  const [splash, setSplash] = createSignal(randomSplash())
+  const [frame, setFrame] = createSignal(0)
+  const [elapsed, setElapsed] = createSignal(0)
+  const trail = createMemo(() => {
+    const f = frame() % PERIOD
+    const forward = f < TRACK
+    const head = forward ? f : PERIOD - f
+    return Array.from({ length: TRACK }, (_, i) => {
+      const behind = forward ? head - i : i - head
+      if (behind === 0) return { ch: "█", fg: colors.error }
+      if (behind === 1) return { ch: "▓", fg: colors.accent }
+      if (behind === 2) return { ch: "▒", fg: colors.accent }
+      if (behind === 3) return { ch: "░", fg: colors.purpleDim }
+      return { ch: "·", fg: colors.purpleShadow }
+    })
+  })
+  createEffect(() => {
+    if (!busy()) return
+    const startedAt = Date.now()
+    setSplash((prev) => randomSplash(prev))
+    setElapsed(0)
+    const frameTimer = setInterval(() => {
+      setFrame((f) => (f + 1) % PERIOD)
+      setElapsed(Math.floor((Date.now() - startedAt) / 1000))
+    }, 70)
+    const splashTimer = setInterval(() => setSplash((prev) => randomSplash(prev)), 8000)
+    onCleanup(() => {
+      clearInterval(frameTimer)
+      clearInterval(splashTimer)
+    })
+  })
+
   const logo = logoRows()
 
   return (
@@ -914,15 +964,18 @@ export function TuiApp(props: TuiAppProps) {
         focusActiveInput()
       }}
     >
-      <box flexShrink={0} paddingLeft={2} paddingTop={2}>
-        <For each={logo}>
-          {(row) => (
-            <text wrapMode="none">
-              <span style={{ fg: row.leftColor }}>{row.left}</span>
-              <span style={{ fg: row.rightColor }}>{row.right}</span>
-            </text>
-          )}
-        </For>
+      <box flexDirection="row" flexShrink={0} paddingLeft={2} paddingTop={2} gap={2}>
+        <box>
+          <For each={logo}>
+            {(row) => (
+              <text wrapMode="none">
+                <span style={{ fg: row.leftColor }}>{row.left}</span>
+                <span style={{ fg: row.rightColor }}>{row.right}</span>
+              </text>
+            )}
+          </For>
+        </box>
+        <image source="C:/Users/ashwi/Downloads/breutt8ycg2f1.png" width={16} height={8} fit="fit" />
       </box>
 
       <scrollbox
@@ -966,6 +1019,14 @@ export function TuiApp(props: TuiAppProps) {
           }}
         </For>
       </scrollbox>
+
+      <Show when={busy() && !askState() && pendingAsks().length === 0}>
+        <text width="100%" flexShrink={0} wrapMode="none" truncate paddingLeft={2}>
+          <For each={trail()}>{(cell) => <span style={{ fg: cell.fg }}>{cell.ch}</span>}</For>
+          <span style={{ fg: colors.white }}> {splash()}</span>
+          <span style={{ fg: colors.gray }}> ({elapsed()}s · esc to interrupt)</span>
+        </text>
+      </Show>
 
       <box width="100%" flexShrink={0} height={2} flexDirection="column" border={["left"]} borderColor={promptColor()} paddingLeft={1} paddingRight={2}>
         <Show
