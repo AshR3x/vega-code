@@ -1,6 +1,6 @@
-import { createEffect, createMemo, createSignal, For, onCleanup, onMount, Show, type Accessor } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Index, onCleanup, onMount, Show, type Accessor } from "solid-js"
 import { createStore } from "solid-js/store"
-import { onFocus, render, useKeyboard, useRenderer } from "@opentui/solid"
+import { onFocus, render, useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import {
   createCliRenderer,
   TextAttributes,
@@ -22,6 +22,17 @@ import { resolveModel } from "@/provider"
 import type { Session } from "@/session"
 import { logoRows } from "@/tui/logo"
 import { randomSplash } from "@/tui/splash"
+import {
+  ART_COLS,
+  clipText,
+  progressParts,
+  renderBars,
+  startVisualizer,
+  toHex,
+  visualizerEnabled,
+  type VisualizerEvent,
+  type VisualizerHandle,
+} from "@/tui/visualizer"
 import { stripAnsi, truncateForDisplay } from "@/tui/layout"
 import { MarkdownText } from "@/tui/markdown"
 import { colors } from "@/tui/theme"
@@ -949,7 +960,48 @@ export function TuiApp(props: TuiAppProps) {
     })
   })
 
+  // Header visualizer (right of the logo/helmet): live spectrum + now-playing
+  // from the terminal-visualizer project. Absent until the feed produces data.
+  const dims = useTerminalDimensions()
+  const [viz, setViz] = createSignal<VisualizerEvent | null>(null)
+  let vizControl: VisualizerHandle | undefined
+  // Album art arrives once per track (on its first frame) and is kept until the next one.
+  const [art, setArt] = createSignal<[string, string][][]>([])
+  onMount(() => {
+    if (!visualizerEnabled()) return
+    const handle = startVisualizer((event) => {
+      if (event?.frame?.art) setArt(event.frame.art)
+      setViz(event)
+    })
+    vizControl = handle
+    onCleanup(() => handle.stop())
+  })
+
   const logo = logoRows()
+  const logoWidth = Math.max(...logo.map((r) => r.left.length + r.right.length))
+  const VIZ_ROWS = 6
+  // paddingLeft(2) + logo + gap(2) + helmet(16) + gap(2) + right margin(2)
+  const artWidth = createMemo(() => (art().length > 0 ? ART_COLS + 2 : 0))
+  const vizWidth = createMemo(() => Math.min(64, dims().width - (2 + logoWidth + 2 + 16 + 2 + 2) - artWidth()))
+  const vizGrid = createMemo(() => {
+    const frame = viz()?.frame
+    const width = vizWidth()
+    if (!frame || width < 16) return []
+    return renderBars(frame.bars, frame.palette.map((c) => c as [number, number, number]), width, VIZ_ROWS)
+  })
+  const vizTitle = createMemo(() => {
+    const frame = viz()?.frame
+    if (!frame) return ""
+    return clipText(`♪ ${frame.title}${frame.artist ? ` — ${frame.artist}` : ""}`, vizWidth())
+  })
+  const vizProgress = createMemo(() => {
+    const frame = viz()?.frame
+    return frame ? progressParts(frame, vizWidth()) : null
+  })
+  const vizAccent = createMemo(() => {
+    const palette = viz()?.frame?.palette
+    return palette && palette.length > 0 ? toHex(palette[palette.length - 1] as [number, number, number]) : colors.purple
+  })
 
   return (
     <box
@@ -964,7 +1016,7 @@ export function TuiApp(props: TuiAppProps) {
         focusActiveInput()
       }}
     >
-      <box flexDirection="row" flexShrink={0} paddingLeft={2} paddingTop={2} gap={2}>
+      <box flexDirection="row" flexShrink={0} paddingLeft={2} paddingRight={2} paddingTop={2} gap={2}>
         <box>
           <For each={logo}>
             {(row) => (
@@ -976,6 +1028,63 @@ export function TuiApp(props: TuiAppProps) {
           </For>
         </box>
         <image source="C:/Users/ashwi/Downloads/breutt8ycg2f1.png" width={16} height={8} fit="fit" />
+        <box flexGrow={1} />
+        <box flexDirection="row" flexShrink={0} gap={2}>
+          <Show when={viz() !== null && vizWidth() >= 16 && art().length > 0 && viz()?.frame}>
+            <box flexDirection="column" width={ART_COLS} height={8} flexShrink={0}>
+              <Index each={art()}>
+                {(row) => (
+                  <text wrapMode="none">
+                    <Index each={row()}>{(cell) => <span style={{ fg: cell()[0], bg: cell()[1] }}>▀</span>}</Index>
+                  </text>
+                )}
+              </Index>
+            </box>
+          </Show>
+          <Show when={viz() !== null && vizWidth() >= 16}>
+            <box flexDirection="column" width={vizWidth()} height={8} flexShrink={0}>
+              <Show
+                when={viz()?.frame}
+                fallback={
+                  <text wrapMode="none" fg={colors.gray}>
+                    ♪ nothing playing
+                  </text>
+                }
+              >
+                <Index each={vizGrid()}>
+                  {(row) => (
+                    <text wrapMode="none">
+                      <Index each={row()}>{(cell) => <span style={{ fg: cell().fg }}>{cell().ch}</span>}</Index>
+                    </text>
+                  )}
+                </Index>
+                <text wrapMode="none" fg={colors.white}>
+                  {vizTitle()}
+                </text>
+                <box flexDirection="row" height={1} flexShrink={0}>
+                  {/* Clickable play/pause: the icon plus a trailing space, so it's easy to hit. */}
+                  <box
+                    width={3}
+                    height={1}
+                    onMouseDown={(e: TuMouseEvent) => {
+                      if (e.button === 0) vizControl?.send("playpause")
+                    }}
+                  >
+                    <text wrapMode="none" fg={vizAccent()}>
+                      {vizProgress()?.icon}
+                    </text>
+                  </box>
+                  <text wrapMode="none">
+                    <span style={{ fg: vizAccent() }}>{vizProgress()?.played}</span>
+                    <span style={{ fg: colors.white }}>{vizProgress()?.dot}</span>
+                    <span style={{ fg: colors.gray }}>{vizProgress()?.rest}</span>
+                    <span style={{ fg: colors.gray }}>{vizProgress()?.time}</span>
+                  </text>
+                </box>
+              </Show>
+            </box>
+          </Show>
+        </box>
       </box>
 
       <scrollbox

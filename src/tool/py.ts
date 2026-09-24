@@ -6,11 +6,11 @@ const execFileAsync = promisify(execFile)
 const RESOLVE_TIMEOUT_MS = 10_000
 const MAX_OUTPUT_BYTES = 8 * 1024 * 1024
 
-type PythonRunnable = { cmd: string; pre: string[] }
+export type PythonRunnable = { cmd: string; pre: string[] }
 let resolvedPython: PythonRunnable | undefined
 const verified = new Set<string>()
 
-async function resolvePython(): Promise<PythonRunnable> {
+export async function resolvePython(): Promise<PythonRunnable> {
   if (resolvedPython) return resolvedPython
   const candidates: PythonRunnable[] = [
     { cmd: "python", pre: [] },
