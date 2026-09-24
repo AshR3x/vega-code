@@ -33,7 +33,7 @@ import {
   type VisualizerEvent,
   type VisualizerHandle,
 } from "@/tui/visualizer"
-import { stripAnsi, truncateForDisplay } from "@/tui/layout"
+import { stripAnsi, summarizeToolResult, truncateForDisplay } from "@/tui/layout"
 import { MarkdownText } from "@/tui/markdown"
 import { colors } from "@/tui/theme"
 
@@ -575,11 +575,17 @@ export function TuiApp(props: TuiAppProps) {
     lastTabAt = 0
     setThinkingExpanded((prev) => {
       const next = !prev
-      // Reveal reasoning collected while collapsed by backfilling the
-      // "(thinking...)" placeholder row instead of abandoning it; if the
-      // model is still reasoning, later deltas stream into that same row.
-      if (next && thinkingRowIndex !== null && thinkingBuffer !== "") {
-        setRows(thinkingRowIndex, "text", thinkingBuffer)
+      // Reveal the current step's reasoning collected while collapsed by
+      // creating its row now; if the model is still reasoning, later deltas
+      // stream into that same row.
+      if (next && thinkingBuffer !== "") {
+        if (thinkingRowIndex === null) {
+          const index = rows.length
+          setRows(index, { id: rowId++, kind: "thinking", text: thinkingBuffer } as HistoryRow)
+          thinkingRowIndex = index
+        } else {
+          setRows(thinkingRowIndex, "text", thinkingBuffer)
+        }
         if (reasoningActive) streamCursor = { kind: "thinking", index: thinkingRowIndex }
       }
       return next
@@ -624,7 +630,10 @@ export function TuiApp(props: TuiAppProps) {
           streamCursor = { kind: "thinking", index }
           thinkingRowIndex = index
         } else {
-          thinkingRowIndex = pushBlock("thinking", "(thinking...)")
+          // Collapsed: no placeholder row. One per tool step piled up between
+          // the tool boxes; the working line above the prompt already shows
+          // activity, and Tab Tab reveals the reasoning of the current step.
+          thinkingRowIndex = null
         }
         break
       }
@@ -660,7 +669,7 @@ export function TuiApp(props: TuiAppProps) {
       }
       case "tool-result":
         if (lastToolCallRowId !== null) setRows(lastToolCallRowId, "status", "done")
-        pushBlock("tool-result", truncateForDisplay(event.output))
+        pushBlock("tool-result", summarizeToolResult(event.name, event.output))
         break
       case "tool-error":
         if (lastToolCallRowId !== null) setRows(lastToolCallRowId, "status", "error")

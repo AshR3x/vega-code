@@ -13,7 +13,7 @@ import { describeRateLimitError } from "@/util/ratelimit"
 import { runCommand, type CommandCtx } from "@/command"
 import { theme, fromRgb } from "@/tui/theme"
 import { renderLogo, renderPromptFrame, promptBoxWidth, promptBoxTextWidth, PROMPT_FRAME_HEIGHT } from "@/tui/logo"
-import { centerBlock, terminalSize, truncateWithEllipsis, truncateForDisplay } from "@/tui/layout"
+import { centerBlock, terminalSize, truncateWithEllipsis, truncateForDisplay, summarizeToolResult } from "@/tui/layout"
 import { runLayoutDebug } from "@/tui/debug"
 import type { TuiHooks } from "@/tui/app"
 
@@ -448,7 +448,7 @@ async function main() {
             const input = truncateForDisplay(JSON.stringify(event.input))
             console.log(theme.purple(`→ ${event.name}`) + theme.gray(`(${input})`))
           } else if (event.type === "tool-result") {
-            console.log(theme.gray(`  ${truncateForDisplay(event.output)}`))
+            console.log(theme.gray(`  ${summarizeToolResult(event.name, event.output)}`))
           } else if (event.type === "tool-error") {
             console.log(theme.error(`  error: ${truncateForDisplay(event.error)}`))
           }

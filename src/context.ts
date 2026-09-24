@@ -8,6 +8,26 @@ import type { AgentDef } from "@/agent"
 
 const KEEP_RECENT_MESSAGES = 10
 
+// Local date, time and timezone, e.g. "Thursday, September 24, 2026, 12:14 PM
+// (Asia/Calcutta, UTC+05:30)". Rebuilt with the system prompt on every turn, so
+// it stays current in long sessions and for searches like "this week".
+function currentDateTime(now = new Date()): string {
+  const stamp = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(now)
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+  const offsetMin = -now.getTimezoneOffset()
+  const sign = offsetMin >= 0 ? "+" : "-"
+  const abs = Math.abs(offsetMin)
+  const offset = `UTC${sign}${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}`
+  return `${stamp} (${zone}, ${offset})`
+}
+
 export async function buildSystemPrompt(input: { agent: AgentDef; cwd: string }): Promise<string> {
   const parts: string[] = [
     "You are vega-code, an autonomous CLI coding agent. You help the user with software engineering tasks in their project directory by reading and editing files and running shell commands.",
@@ -22,7 +42,7 @@ export async function buildSystemPrompt(input: { agent: AgentDef; cwd: string })
       "<env>",
       `  Working directory: ${input.cwd}`,
       `  Platform: ${process.platform}`,
-      `  Today's date: ${new Date().toDateString()}`,
+      `  Current date and time: ${currentDateTime()}`,
       "</env>",
     ].join("\n"),
   )
