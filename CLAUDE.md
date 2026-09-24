@@ -88,6 +88,11 @@ containing the raw `ModelMessage[]` array (the AI SDK's own message format — n
   `ddgs`, only `websearch` fails. Options go in as one JSON argv blob and page bytes over stdin (Windows argv cap).
   `ddgs` silently returns `[]` when DDG fingerprint-blocks a request, so `websearch` retries once before saying
   "no results".
+- **The header visualizer is `visualizer/feed.py`** (Windows-only, self-contained): a Python child process started by
+  `src/tui/visualizer.ts` that streams spectrum/now-playing/album-art as JSON lines and accepts `playpause|next|prev`
+  on stdin. Needs `pip install -r visualizer/requirements.txt`; `VEGA_VISUALIZER=off` disables it, and if anything
+  is missing the panel just doesn't appear. SMTC's reported position only updates every few seconds, so the feed
+  extrapolates from `last_updated_time` instead of re-reading it raw (reading it raw makes the scrubber jump).
 - **`webfetch` follows redirects by hand** so a cross-host hop re-prompts for `webfetch` permission — don't switch
   it back to `redirect: "follow"`. Pages are extracted once, cached per session (url + mode + include), and the
   optional `query` picks sections with a small BM25 scorer in TS; the outline's line ranges must match what

@@ -2,9 +2,9 @@ import { spawn, type ChildProcess } from "node:child_process"
 import path from "node:path"
 import { resolvePython } from "@/tool/py"
 
-// Talks to visualizer/feed.py, which streams the terminal-visualizer project's
-// live spectrum + now-playing data as one JSON object per line. Everything is
-// best-effort: if Python, the deps or the project dir are missing, the child
+// Talks to visualizer/feed.py, which streams the live
+// spectrum + now-playing data as one JSON object per line. Everything is
+// best-effort: if Python or the visualizer/ requirements are missing, the child
 // exits and the header panel simply never appears.
 
 export type RGB = [number, number, number]

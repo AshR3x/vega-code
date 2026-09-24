@@ -961,7 +961,7 @@ export function TuiApp(props: TuiAppProps) {
   })
 
   // Header visualizer (right of the logo/helmet): live spectrum + now-playing
-  // from the terminal-visualizer project. Absent until the feed produces data.
+  // from visualizer/feed.py. Absent until the feed produces data.
   const dims = useTerminalDimensions()
   const [viz, setViz] = createSignal<VisualizerEvent | null>(null)
   let vizControl: VisualizerHandle | undefined
