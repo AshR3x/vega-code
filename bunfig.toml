@@ -1,0 +1,3 @@
+# Load @opentui/solid so JSX compiled with jsxImportSource="@opentui/solid"
+# runs against the correct JSX runtime (see tsconfig.json).
+preload = ["@opentui/solid/preload"]
